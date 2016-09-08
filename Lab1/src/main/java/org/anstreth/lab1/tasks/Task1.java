@@ -97,6 +97,6 @@ public class Task1 extends AbstractTask {
 
     @Override
     public String getName() {
-        return "Конус и сфера";
+        return "Sphere and cone";
     }
 }

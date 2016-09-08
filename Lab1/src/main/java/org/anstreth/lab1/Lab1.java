@@ -36,7 +36,7 @@ public class Lab1 {
     static private AbstractTask[] tasks = {new Task1()};
 
     public static void main(String[] args) {
-        System.out.println("Это лабораторная работа #1. Выберите пункт для демонстрации.");
+        System.out.println("It's #1 lab. Choose task to demonstrate.");
         for (int i = 0; i < tasks.length; i++) {
             System.out.println((i+1) + ". " + tasks[i].getName());
         }
@@ -52,14 +52,14 @@ public class Lab1 {
                     throw new IllegalArgumentException();
                 else break;
             } catch (InputMismatchException e) {
-                System.out.println("Ошибка ввода! Попробуйте ещё раз.");
+                System.out.println("Input error! Try again.");
                 scanner.next();
             } catch (IllegalArgumentException e) {
-                System.out.println("Недопустимый номер пункта! Попробуйте ещё раз.");
+                System.out.println("Wront task number! Try again.");
             }
         }
 
-        System.out.printf("Пункт номер %d выбран для демонстрации.", n+1);
+        System.out.printf("Task #%d has been chosen for demonstration.", n+1);
 
         tasks[n].start();
     }

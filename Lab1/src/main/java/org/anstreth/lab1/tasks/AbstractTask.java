@@ -26,7 +26,7 @@ abstract public class AbstractTask implements GLEventListener {
         GLCapabilities caps = new GLCapabilities(glp);
 
         GLWindow glWindow = GLWindow.create(caps);
-        glWindow.setTitle("Test");
+        glWindow.setTitle(getName());
         glWindow.addGLEventListener(this);
         glWindow.setSize(640, 480);
         glWindow.setVisible(true);
