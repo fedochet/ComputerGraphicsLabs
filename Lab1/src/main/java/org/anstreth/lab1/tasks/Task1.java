@@ -21,19 +21,11 @@ public class Task1 extends AbstractTask {
 
     private float angle = 0;
 
+    @Override
     public void display(GLAutoDrawable drawable) {
+        super.display(drawable);
 
         GL2 gl2 = drawable.getGL().getGL2();
-        gl2.glShadeModel(GL2.GL_SMOOTH);
-        gl2.glClearColor(0f, 0f, 0f, 0f);
-        gl2.glClearDepth(1.0f);
-        gl2.glEnable(GL_DEPTH_TEST);
-        gl2.glDepthFunc(GL_LEQUAL);
-        gl2.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-        gl2.glClearColor(0, 0, 0, 1);
-        gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         gl2.glColor3f(1, 0, 0);
 
         GLUquadric sphereQuadric = glu.gluNewQuadric();

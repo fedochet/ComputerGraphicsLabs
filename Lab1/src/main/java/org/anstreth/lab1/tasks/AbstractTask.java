@@ -9,9 +9,8 @@ import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.gl2.GLUT;
 import org.anstreth.lab1.Lab1;
 
-import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
-import static com.jogamp.opengl.GL.GL_LEQUAL;
-import static com.jogamp.opengl.GL.GL_NICEST;
+import static com.jogamp.opengl.GL.*;
+import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
@@ -73,7 +72,22 @@ abstract public class AbstractTask implements GLEventListener {
         gl2.glMatrixMode(GL_MODELVIEW);
     }
 
+    @Override
     public void dispose(GLAutoDrawable drawable) {
 
+    }
+
+    @Override
+    public void display(GLAutoDrawable drawable) {
+        GL2 gl2 = drawable.getGL().getGL2();
+        gl2.glShadeModel(GL2.GL_SMOOTH);
+        gl2.glClearColor(0f, 0f, 0f, 0f);
+        gl2.glClearDepth(1.0f);
+        gl2.glEnable(GL_DEPTH_TEST);
+        gl2.glDepthFunc(GL_LEQUAL);
+        gl2.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+        gl2.glClearColor(0, 0, 0, 1);
+        gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 }

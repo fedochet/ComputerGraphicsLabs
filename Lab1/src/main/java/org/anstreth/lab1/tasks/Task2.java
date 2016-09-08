@@ -20,18 +20,8 @@ public class Task2 extends AbstractTask {
 
     @Override
     public void display(GLAutoDrawable drawable) {
+        super.display(drawable);
         GL2 gl = drawable.getGL().getGL2();
-
-        GL2 gl2 = drawable.getGL().getGL2();
-        gl2.glShadeModel(GL2.GL_SMOOTH);
-        gl2.glClearColor(0f, 0f, 0f, 0f);
-        gl2.glClearDepth(1.0f);
-        gl2.glEnable(GL_DEPTH_TEST);
-        gl2.glDepthFunc(GL_LEQUAL);
-        gl2.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-        gl2.glClearColor(0, 0, 0, 1);
-        gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         gl.glColor3f(0,1,0);
         GLUquadric quad = glu.gluNewQuadric();
