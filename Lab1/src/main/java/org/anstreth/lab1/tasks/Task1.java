@@ -70,15 +70,6 @@ public class Task1 extends AbstractTask {
         angle += 0.1;
     }
 
-    public static void glDraw(GL2 gl, int mode, Consumer<GL2> consumer) {
-        gl.glBegin(mode);
-
-        consumer.accept(gl);
-
-        gl.glEnd();
-        gl.glFlush();
-    }
-
     public void reshape(GLAutoDrawable drawable, int x, int y, int w, int h) {
         GL2 gl2 = drawable.getGL().getGL2();
 
@@ -92,7 +83,6 @@ public class Task1 extends AbstractTask {
         gl2.glOrtho(-40, 40, -40/hh, 40/hh, -100, 100);
         glu.gluLookAt(0, 0, 10, 10,10,0, 0,0,1);
         gl2.glMatrixMode(GL_MODELVIEW);
-
     }
 
     @Override
