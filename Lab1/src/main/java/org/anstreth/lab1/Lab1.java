@@ -10,7 +10,11 @@ import com.jogamp.opengl.glu.GLUquadric;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.gl2.GLUT;
+import org.anstreth.lab1.tasks.AbstractTask;
+import org.anstreth.lab1.tasks.Task1;
 
+import java.util.InputMismatchException;
+import java.util.Scanner;
 import java.util.function.Consumer;
 
 import static com.jogamp.opengl.GL.*;
@@ -24,118 +28,39 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
  * Created by roman on 03.09.2016.
  */
 
-public class Lab1 implements GLEventListener {
+public class Lab1 {
+
+    private float angle = 0;
+
+//    static private String[] tasks = {"Конус и шар", "Поворот", "Куб и сфера", "Текстура", "Морфинг"};
+    static private AbstractTask[] tasks = {new Task1()};
 
     public static void main(String[] args) {
-        GLProfile glp = GLProfile.get(GLProfile.GL2);
+        System.out.println("Это лабораторная работа #1. Выберите пункт для демонстрации.");
+        for (int i = 0; i < tasks.length; i++) {
+            System.out.println((i+1) + ". " + tasks[i].getName());
+        }
 
-        GLCapabilities caps = new GLCapabilities(glp);
+        Scanner scanner = new Scanner(System.in);
 
-        GLWindow glWindow = GLWindow.create(caps);
-        glWindow.setTitle("Test");
-        glWindow.addGLEventListener(new Lab1());
-        glWindow.setSize(960, 480);
-        glWindow.setVisible(true);
+        int n = -1;
 
-        glWindow.addWindowListener(new WindowAdapter() {
-            public void windowDestroyNotify(WindowEvent e) {
-                System.exit(0);
+        while (true) {
+            try {
+                n = scanner.nextInt() - 1;
+                if (n < 0 || n >= tasks.length)
+                    throw new IllegalArgumentException();
+                else break;
+            } catch (InputMismatchException e) {
+                System.out.println("Ошибка ввода! Попробуйте ещё раз.");
+                scanner.next();
+            } catch (IllegalArgumentException e) {
+                System.out.println("Недопустимый номер пункта! Попробуйте ещё раз.");
             }
-        });
+        }
 
-        Animator animator = new Animator(glWindow);
-        animator.start();
+        System.out.printf("Пункт номер %d выбран для демонстрации.", n+1);
 
-    }
-
-    GLU glu = new GLU();
-    GLUT glut = new GLUT();
-
-    public void init(GLAutoDrawable drawable) {
-        final GL2 gl = drawable.getGL().getGL2();
-
-        gl.glShadeModel(GL_SMOOTH);
-        gl.glClearColor(0f, 0f, 0f, 0f);
-        gl.glClearDepth(1.0f);
-        gl.glEnable(GL_DEPTH_TEST);
-        gl.glDepthFunc(GL_LEQUAL);
-        gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-    }
-
-    public void dispose(GLAutoDrawable drawable) {
-
-    }
-
-    public void display(GLAutoDrawable drawable) {
-
-        GL2 gl2 = drawable.getGL().getGL2();
-        gl2.glShadeModel(GL2.GL_SMOOTH);
-        gl2.glClearColor(0f, 0f, 0f, 0f);
-        gl2.glClearDepth(1.0f);
-        gl2.glEnable(GL_DEPTH_TEST);
-        gl2.glDepthFunc(GL_LEQUAL);
-        gl2.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-        gl2.glClearColor(0, 0, 0, 1);
-        gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-//        gl2.glMatrixMode(GL_MODELVIEW);
-////        gl2.glLoadIdentity();
-////        glu.gluLookAt(10, 10, 10, 0, 0, 0, 0, 0, 0);
-//
-////        gl2.glMatrixMode(GL_MODELVIEW);
-////        gl2.glLoadIdentity();
-////        glu.gluLookAt(angle, angle, angle, 0, 0, 0, 0, 1.0, 0);
-
-//        gl2.glMatrixMode(GL_PROJECTION);
-//        gl2.glLoadIdentity();
-//        gl2.glRotatef(angle, 0f, 0f, 0f);
-
-        gl2.glPushMatrix();
-        GLUquadric sphereQuadric = glu.gluNewQuadric();
-
-        gl2.glMatrixMode(GL_MODELVIEW);
-        gl2.glRotatef(-45, 1, 0, 0);
-
-        gl2.glColor3f(1, 0, 0);
-
-        glu.gluQuadricDrawStyle(sphereQuadric, GLU.GLU_LINE);
-        glu.gluSphere(sphereQuadric, 2, 20, 20);
-
-        gl2.glPushMatrix();
-        gl2.glTranslatef(5, 0, -2);
-        glu.gluCylinder(sphereQuadric, 2, 0, 4, 20, 20);
-
-        glu.gluDeleteQuadric(sphereQuadric);
-        gl2.glPopMatrix();
-        gl2.glPopMatrix();
-
-    }
-
-    public static void glDraw(GL2 gl, int mode, Consumer<GL2> consumer) {
-        gl.glBegin(mode);
-
-        consumer.accept(gl);
-
-        gl.glEnd();
-        gl.glFlush();
-    }
-
-    public void reshape(GLAutoDrawable drawable, int x, int y, int w, int h) {
-        GL2 gl2 = drawable.getGL().getGL2();
-
-        gl2.glViewport(0, 0, w, h);
-
-        final float hh = (float) w / (float) h;
-        double mul = 0.01;
-
-        gl2.glMatrixMode(GL_MODELVIEW);
-        gl2.glLoadIdentity();
-        glu.gluLookAt(0, 10, 10, 0, 0, 0, 0, 10, 0);
-
-        gl2.glMatrixMode(GL_PROJECTION);
-        gl2.glLoadIdentity();
-        gl2.glOrtho(-w * mul, w * mul, -h * mul, h * mul, 0, 100);
-//        glu.gluPerspective(130, hh, 50, 0);
+        tasks[n].start();
     }
 }
