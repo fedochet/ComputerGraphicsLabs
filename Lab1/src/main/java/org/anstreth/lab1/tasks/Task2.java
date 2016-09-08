@@ -17,18 +17,29 @@ public class Task2 extends AbstractTask {
         return "Rotating";
     }
 
+    private float angle = 0;
 
     @Override
     public void display(GLAutoDrawable drawable) {
         super.display(drawable);
         GL2 gl = drawable.getGL().getGL2();
 
-        gl.glColor3f(0,1,0);
-        GLUquadric quad = glu.gluNewQuadric();
+        gl.glColor3f(0, 1, 0);
         gl.glPushMatrix();
+        gl.glRotatef(-angle, 0, 0, 1);
         gl.glTranslatef(10, 10, 0);
         glut.glutWireCube(5);
+
+        gl.glTranslatef(-10, -10, 0);
+        gl.glTranslatef(-10, -10, 0);
+        gl.glPushMatrix();
+        gl.glRotatef(90,1,0,0);
+        glut.glutWireTeapot(5);
         gl.glPopMatrix();
-        glu.gluDeleteQuadric(quad);
+        gl.glPopMatrix();
+
+        if (angle < 180) {
+            angle += 0.05;
+        }
     }
 }
