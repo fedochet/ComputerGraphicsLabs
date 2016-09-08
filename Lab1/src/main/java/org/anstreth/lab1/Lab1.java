@@ -12,6 +12,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.gl2.GLUT;
 import org.anstreth.lab1.tasks.AbstractTask;
 import org.anstreth.lab1.tasks.Task1;
+import org.anstreth.lab1.tasks.Task2;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -32,13 +33,16 @@ public class Lab1 {
 
     private float angle = 0;
 
-//    static private String[] tasks = {"Конус и шар", "Поворот", "Куб и сфера", "Текстура", "Морфинг"};
-    static private AbstractTask[] tasks = {new Task1()};
+    //    static private String[] tasks = {"Конус и шар", "Поворот", "Куб и сфера", "Текстура", "Морфинг"};
+    static private AbstractTask[] tasks = {
+            new Task1(),
+            new Task2()
+    };
 
     public static void main(String[] args) {
         System.out.println("It's #1 lab. Choose task to demonstrate.");
         for (int i = 0; i < tasks.length; i++) {
-            System.out.println((i+1) + ". " + tasks[i].getName());
+            System.out.println((i + 1) + ". " + tasks[i].getName());
         }
 
         Scanner scanner = new Scanner(System.in);
@@ -59,7 +63,7 @@ public class Lab1 {
             }
         }
 
-        System.out.printf("Task #%d has been chosen for demonstration.", n+1);
+        System.out.printf("Task #%d has been chosen for demonstration.", n + 1);
 
         tasks[n].start();
     }

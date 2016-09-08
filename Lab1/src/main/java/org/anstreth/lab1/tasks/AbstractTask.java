@@ -3,13 +3,19 @@ package org.anstreth.lab1.tasks;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.*;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.gl2.GLUT;
 import org.anstreth.lab1.Lab1;
+
+import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
+import static com.jogamp.opengl.GL.GL_LEQUAL;
+import static com.jogamp.opengl.GL.GL_NICEST;
+import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 
 /**
  * Created by roman on 08.09.2016.
@@ -39,5 +45,35 @@ abstract public class AbstractTask implements GLEventListener {
 
         Animator animator = new Animator(glWindow);
         animator.start();
+    }
+
+    public void init(GLAutoDrawable drawable) {
+        final GL2 gl = drawable.getGL().getGL2();
+
+        gl.glShadeModel(GL_SMOOTH);
+        gl.glClearColor(0f, 0f, 0f, 0f);
+        gl.glClearDepth(1.0f);
+        gl.glEnable(GL_DEPTH_TEST);
+        gl.glDepthFunc(GL_LEQUAL);
+        gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    }
+
+    public void reshape(GLAutoDrawable drawable, int x, int y, int w, int h) {
+        GL2 gl2 = drawable.getGL().getGL2();
+
+        gl2.glViewport(0, 0, w, h);
+
+        final float hh = (float) w / (float) h;
+        double mul = 0.01;
+
+        gl2.glMatrixMode(GL_PROJECTION);
+        gl2.glLoadIdentity();
+        gl2.glOrtho(-40, 40, -40/hh, 40/hh, -100, 100);
+        glu.gluLookAt(0, 0, 10, 10,10,0, 0,0,1);
+        gl2.glMatrixMode(GL_MODELVIEW);
+    }
+
+    public void dispose(GLAutoDrawable drawable) {
+
     }
 }
