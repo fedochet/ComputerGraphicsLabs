@@ -1,5 +1,7 @@
 package org.anstreth.lab1;
 
+import com.jogamp.newt.event.KeyEvent;
+import com.jogamp.newt.event.KeyListener;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
@@ -19,11 +21,12 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
  * Created by roman on 09.09.2016.
  */
 public class TaskExecutor implements GLEventListener {
-    protected GLU glu = new GLU();
-    protected GLUT glut = new GLUT();
+    private GLU glu = new GLU();
+    private GLUT glut = new GLUT();
 
     private final String name;
     private float angle = 0;
+    private volatile int currentTask = 1;
 
     public TaskExecutor(String name) {
         this.name = name;
@@ -43,6 +46,20 @@ public class TaskExecutor implements GLEventListener {
         glWindow.addWindowListener(new WindowAdapter() {
             public void windowDestroyNotify(WindowEvent e) {
                 System.exit(0);
+            }
+        });
+
+        glWindow.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                switch (e.getKeyChar()) {
+                    case ' ':
+                        currentTask ++;
+                }
             }
         });
 
@@ -71,8 +88,8 @@ public class TaskExecutor implements GLEventListener {
 
         gl2.glMatrixMode(GL_PROJECTION);
         gl2.glLoadIdentity();
-        gl2.glOrtho(-40, 40, -40/hh, 40/hh, -100, 100);
-        glu.gluLookAt(0, 0, 10, 10,10,0, 0,0,1);
+        gl2.glOrtho(-40, 40, -40 / hh, 40 / hh, -100, 100);
+        glu.gluLookAt(0, 0, 10, 10, 10, 0, 0, 0, 1);
         gl2.glMatrixMode(GL_MODELVIEW);
     }
 
@@ -97,31 +114,30 @@ public class TaskExecutor implements GLEventListener {
         switch (currentTask) {
             case 1:
                 task1(gl2);
-                currentTask++;
                 break;
             case 2:
                 task2(gl2, -angle);
-                angle += 0.01;
-                if (angle>180) {
-                    currentTask++;
+                if (angle < 180) {
+                    angle += 0.1;
                 }
                 break;
+            case 3:
+                task3(gl2);
+                break;
             default:
-                task1(gl2);
+                task3(gl2);
         }
     }
-
-    private int currentTask = 1;
 
     private void task1(GL2 gl2) {
         task2(gl2, 0);
     }
 
     private void task2(GL2 gl2, float angle) {
-        gl2.glColor3f(1, 0, 0);
+        gl2.glColor3f(1, 1, 1);
 
         gl2.glPushMatrix();
-        gl2.glRotatef(angle, 0,0,1);
+        gl2.glRotatef(angle, 0, 0, 1);
         gl2.glTranslatef(10, 10, 0);
 
         int slices = 10;
@@ -130,6 +146,26 @@ public class TaskExecutor implements GLEventListener {
 
         gl2.glTranslatef(0, 0, 15);
         glut.glutWireSphere(5, slices, stacks);
+        gl2.glPopMatrix();
+    }
+
+    private void task3(GL2 gl2) {
+        gl2.glEnable(GL_BLEND);
+        gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        float alpha = 0.4f;
+        gl2.glColor4f(1, 1, 1, alpha);
+        gl2.glPushMatrix();
+        {
+            int cubeSize = 20;
+
+            int sphereRadius = 7;
+            int slices = 20;
+            int stacks = 20;
+
+            glut.glutSolidCube(cubeSize);
+            gl2.glTranslatef(cubeSize/2, cubeSize/2, cubeSize/2);
+            glut.glutSolidSphere(sphereRadius, slices, stacks);
+        }
         gl2.glPopMatrix();
     }
 }

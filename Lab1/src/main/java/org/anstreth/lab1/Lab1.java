@@ -1,30 +1,5 @@
 package org.anstreth.lab1;
 
-import com.jogamp.newt.event.WindowEvent;
-import com.jogamp.newt.opengl.GLWindow;
-import com.jogamp.opengl.*;
-
-import com.jogamp.newt.event.WindowAdapter;
-import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.glu.GLUquadric;
-import com.jogamp.opengl.util.Animator;
-import com.jogamp.opengl.util.FPSAnimator;
-import com.jogamp.opengl.util.gl2.GLUT;
-import org.anstreth.lab1.tasks.AbstractTask;
-import org.anstreth.lab1.tasks.Task1;
-import org.anstreth.lab1.tasks.Task2;
-
-import java.util.InputMismatchException;
-import java.util.Scanner;
-import java.util.function.Consumer;
-
-import static com.jogamp.opengl.GL.*;
-import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
-import static com.jogamp.opengl.GL2GL3.GL_QUADS;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
-
 /**
  * Created by roman on 03.09.2016.
  */
