@@ -96,40 +96,40 @@ public class TaskExecutor implements GLEventListener {
 
         switch (currentTask) {
             case 1:
-                task1(gl2, 0);
+                task1(gl2);
                 currentTask++;
                 break;
             case 2:
-                task1(gl2, -angle);
+                task2(gl2, -angle);
                 angle += 0.01;
                 if (angle>180) {
                     currentTask++;
                 }
                 break;
             default:
-                task1(gl2, 0);
+                task1(gl2);
         }
     }
 
     private int currentTask = 1;
 
-    private void task1(GL2 gl, float i) {
-        gl.glColor3f(0, 1, 0);
-        gl.glPushMatrix();
-        gl.glRotatef(-angle, 0, 0, 1);
-        gl.glTranslatef(10, 10, 0);
-        glut.glutWireCube(5);
+    private void task1(GL2 gl2) {
+        task2(gl2, 0);
+    }
 
-        gl.glTranslatef(-10, -10, 0);
-        gl.glTranslatef(-10, -10, 0);
-        gl.glPushMatrix();
-        gl.glRotatef(90,1,0,0);
-        glut.glutWireTeapot(5);
-        gl.glPopMatrix();
-        gl.glPopMatrix();
+    private void task2(GL2 gl2, float angle) {
+        gl2.glColor3f(1, 0, 0);
 
-        if (angle < 180) {
-            angle += 0.05;
-        }
+        gl2.glPushMatrix();
+        gl2.glRotatef(angle, 0,0,1);
+        gl2.glTranslatef(10, 10, 0);
+
+        int slices = 10;
+        int stacks = 10;
+        glut.glutWireCone(10, 15, slices, stacks);
+
+        gl2.glTranslatef(0, 0, 15);
+        glut.glutWireSphere(5, slices, stacks);
+        gl2.glPopMatrix();
     }
 }

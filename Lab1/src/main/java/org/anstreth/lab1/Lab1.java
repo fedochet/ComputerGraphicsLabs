@@ -34,37 +34,11 @@ public class Lab1 {
     private float angle = 0;
 
     //    static private String[] tasks = {"Конус и шар", "Поворот", "Куб и сфера", "Текстура", "Морфинг"};
-    static private AbstractTask[] tasks = {
-            new Task1(),
-            new Task2()
-    };
+
+    static private TaskExecutor taskExecutor = new TaskExecutor("Lab 1");
 
     public static void main(String[] args) {
-        System.out.println("It's #1 lab. Choose task to demonstrate.");
-        for (int i = 0; i < tasks.length; i++) {
-            System.out.println((i + 1) + ". " + tasks[i].getName());
-        }
-
-        Scanner scanner = new Scanner(System.in);
-
-        int n = -1;
-
-        while (true) {
-            try {
-                n = scanner.nextInt() - 1;
-                if (n < 0 || n >= tasks.length)
-                    throw new IllegalArgumentException();
-                else break;
-            } catch (InputMismatchException e) {
-                System.out.println("Input error! Try again.");
-                scanner.next();
-            } catch (IllegalArgumentException e) {
-                System.out.println("Wront task number! Try again.");
-            }
-        }
-
-        System.out.printf("Task #%d has been chosen for demonstration.", n + 1);
-
-        tasks[n].start();
+        System.out.println("It's #1 lab.");
+        taskExecutor.start();
     }
 }
