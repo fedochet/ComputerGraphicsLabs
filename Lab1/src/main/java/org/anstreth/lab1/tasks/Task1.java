@@ -28,22 +28,16 @@ public class Task1 extends AbstractTask {
         GL2 gl2 = drawable.getGL().getGL2();
         gl2.glColor3f(1, 0, 0);
 
-        GLUquadric sphereQuadric = glu.gluNewQuadric();
-        glu.gluQuadricDrawStyle(sphereQuadric, GLU.GLU_LINE);
         gl2.glPushMatrix();
-//        gl2.glMatrixMode(GL_MODELVIEW);
-//        gl2.glRotatef(angle, 0,0,1);
         gl2.glTranslatef(10, 10, 0);
 
         int slices = 10;
         int stacks = 10;
-        glu.gluCylinder(sphereQuadric, 10, 0, 15, slices, stacks);
+        glut.glutWireCone(10, 15, slices, stacks);
 
         gl2.glTranslatef(0, 0, 15);
-        glu.gluSphere(sphereQuadric, 5, slices, stacks);
+        glut.glutWireSphere(5, slices, stacks);
         gl2.glPopMatrix();
-
-        glu.gluDeleteQuadric(sphereQuadric);
 
         angle += 0.1;
     }
