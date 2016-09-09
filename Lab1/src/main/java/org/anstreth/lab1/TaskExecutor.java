@@ -91,5 +91,22 @@ public class TaskExecutor implements GLEventListener {
 
         gl2.glClearColor(0, 0, 0, 1);
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        task1(gl2);
+    }
+
+    private void task1(GL2 gl2) {
+        gl2.glColor3f(1, 0, 0);
+
+        gl2.glPushMatrix();
+        gl2.glTranslatef(10, 10, 0);
+
+        int slices = 10;
+        int stacks = 10;
+        glut.glutWireCone(10, 15, slices, stacks);
+
+        gl2.glTranslatef(0, 0, 15);
+        glut.glutWireSphere(5, slices, stacks);
+        gl2.glPopMatrix();
     }
 }
