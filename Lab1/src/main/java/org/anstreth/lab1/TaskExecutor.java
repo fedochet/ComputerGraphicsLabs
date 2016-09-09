@@ -23,6 +23,8 @@ public class TaskExecutor implements GLEventListener {
     protected GLUT glut = new GLUT();
 
     private final String name;
+    private float angle = 0;
+
     public TaskExecutor(String name) {
         this.name = name;
     }
@@ -92,21 +94,42 @@ public class TaskExecutor implements GLEventListener {
         gl2.glClearColor(0, 0, 0, 1);
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        task1(gl2);
+        switch (currentTask) {
+            case 1:
+                task1(gl2, 0);
+                currentTask++;
+                break;
+            case 2:
+                task1(gl2, -angle);
+                angle += 0.01;
+                if (angle>180) {
+                    currentTask++;
+                }
+                break;
+            default:
+                task1(gl2, 0);
+        }
     }
 
-    private void task1(GL2 gl2) {
-        gl2.glColor3f(1, 0, 0);
+    private int currentTask = 1;
 
-        gl2.glPushMatrix();
-        gl2.glTranslatef(10, 10, 0);
+    private void task1(GL2 gl, float i) {
+        gl.glColor3f(0, 1, 0);
+        gl.glPushMatrix();
+        gl.glRotatef(-angle, 0, 0, 1);
+        gl.glTranslatef(10, 10, 0);
+        glut.glutWireCube(5);
 
-        int slices = 10;
-        int stacks = 10;
-        glut.glutWireCone(10, 15, slices, stacks);
+        gl.glTranslatef(-10, -10, 0);
+        gl.glTranslatef(-10, -10, 0);
+        gl.glPushMatrix();
+        gl.glRotatef(90,1,0,0);
+        glut.glutWireTeapot(5);
+        gl.glPopMatrix();
+        gl.glPopMatrix();
 
-        gl2.glTranslatef(0, 0, 15);
-        glut.glutWireSphere(5, slices, stacks);
-        gl2.glPopMatrix();
+        if (angle < 180) {
+            angle += 0.05;
+        }
     }
 }
