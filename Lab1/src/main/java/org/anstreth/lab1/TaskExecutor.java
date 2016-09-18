@@ -13,11 +13,14 @@ import com.jogamp.opengl.util.gl2.GLUT;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import org.anstreth.lab1.common.Point;
+import org.anstreth.lab1.common.Side;
 import org.anstreth.lab1.common.Strip;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -272,11 +275,12 @@ public class TaskExecutor implements GLEventListener {
 //        gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
         gl.glPushMatrix();
         gl.glRotatef(horisontalAngle, 0, 0, 1);
-        new Strip(new Point(0, 0, 0), new Point(0, 30, 0), new Point(0, 30, 10), new Point(0, 0, 10), 5).draw(gl);
+        new Side(new Point(0, 0, 0), new Point(0, 40, 0), new Point(0, 40, 40), new Point(0, 0, 40), 5).draw(gl);
         gl.glPopMatrix();
 
         gl.glDisableClientState(GL_VERTEX_ARRAY);
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
+
 }
 
