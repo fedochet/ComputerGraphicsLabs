@@ -7,15 +7,29 @@ import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLUquadric;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.gl2.GLUT;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
+import org.anstreth.lab1.common.Point;
+import org.anstreth.lab1.common.Strip;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
+import static com.jogamp.opengl.GL2GL3.GL_FILL;
+import static com.jogamp.opengl.GL2GL3.GL_LINE;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
+import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
+import static com.jogamp.opengl.glu.GLU.GLU_FILL;
+import static com.jogamp.opengl.glu.GLU.GLU_SMOOTH;
 
 /**
  * Created by roman on 09.09.2016.
@@ -27,6 +41,9 @@ public class TaskExecutor implements GLEventListener {
     private final String name;
     private float angle = 0;
     private volatile int currentTask = 1;
+
+    private int verticalAngle = 0;
+    private int horisontalAngle = 0;
 
     public TaskExecutor(String name) {
         this.name = name;
@@ -56,9 +73,25 @@ public class TaskExecutor implements GLEventListener {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                switch (e.getKeyChar()) {
-                    case ' ':
-                        currentTask ++;
+
+                System.out.println(e.getKeyCode());
+
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_SPACE:
+                        currentTask++;
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        verticalAngle--;
+                        break;
+                    case KeyEvent.VK_UP:
+                        verticalAngle++;
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        horisontalAngle--;
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        horisontalAngle++;
+                        break;
                 }
             }
         });
@@ -66,6 +99,8 @@ public class TaskExecutor implements GLEventListener {
         Animator animator = new Animator(glWindow);
         animator.start();
     }
+
+    private Texture earthTexture;
 
     public void init(GLAutoDrawable drawable) {
         final GL2 gl = drawable.getGL().getGL2();
@@ -76,6 +111,12 @@ public class TaskExecutor implements GLEventListener {
         gl.glEnable(GL_DEPTH_TEST);
         gl.glDepthFunc(GL_LEQUAL);
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+        try {
+            earthTexture = TextureIO.newTexture(getTextureFile(), true);
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void reshape(GLAutoDrawable drawable, int x, int y, int w, int h) {
@@ -88,9 +129,11 @@ public class TaskExecutor implements GLEventListener {
 
         gl2.glMatrixMode(GL_PROJECTION);
         gl2.glLoadIdentity();
-        gl2.glOrtho(-40, 40, -40 / hh, 40 / hh, -100, 100);
-        glu.gluLookAt(0, 0, 10, 10, 10, 0, 0, 0, 1);
+        int size = 80;
+        gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
         gl2.glMatrixMode(GL_MODELVIEW);
+        gl2.glLoadIdentity();
+        glu.gluLookAt(-5, -5, 10, 10, 10, 0, 0, 0, 1);
     }
 
     @Override
@@ -100,7 +143,11 @@ public class TaskExecutor implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable drawable) {
+
         GL2 gl2 = drawable.getGL().getGL2();
+
+//        glu.gluLookAt(-10, -10, verticalAngle, 10, 10, 0, 0, 0, 1);
+
         gl2.glShadeModel(GL2.GL_SMOOTH);
         gl2.glClearColor(0f, 0f, 0f, 0f);
         gl2.glClearDepth(1.0f);
@@ -123,6 +170,12 @@ public class TaskExecutor implements GLEventListener {
                 break;
             case 3:
                 task3(gl2);
+                break;
+            case 4:
+                task4(gl2);
+                break;
+            case 5:
+                task5(gl2);
                 break;
             default:
                 task3(gl2);
@@ -163,9 +216,67 @@ public class TaskExecutor implements GLEventListener {
             int stacks = 20;
 
             glut.glutSolidCube(cubeSize);
-            gl2.glTranslatef(cubeSize/2, cubeSize/2, cubeSize/2);
+            gl2.glTranslatef(cubeSize / 2, cubeSize / 2, cubeSize / 2);
             glut.glutSolidSphere(sphereRadius, slices, stacks);
         }
         gl2.glPopMatrix();
     }
+
+    private File getTextureFile() throws URISyntaxException {
+        return new File(getClass().getResource("/earth.jpg").toURI());
+    }
+
+    private void task4(GL2 gl) {
+        gl.glEnable(GL_TEXTURE_2D);
+
+        earthTexture.enable(gl);
+        earthTexture.bind(gl);
+
+        GLUquadric quad = glu.gluNewQuadric();
+        glu.gluQuadricDrawStyle(quad, GLU_FILL);
+        glu.gluQuadricTexture(quad, true);
+        glu.gluQuadricNormals(quad, GLU_SMOOTH);
+
+        gl.glPushMatrix();
+        gl.glRotatef(verticalAngle, 0, 1, 0);
+        gl.glPushMatrix();
+        gl.glRotatef(horisontalAngle, 0, 0, 1);
+
+        glu.gluSphere(quad, 30, horisontalAngle + 1, verticalAngle + 1);
+
+        gl.glPopMatrix();
+        gl.glPopMatrix();
+
+        earthTexture.disable(gl);
+
+        glu.gluDeleteQuadric(quad);
+    }
+
+    private void task5(GL2 gl) {
+
+        gl.glEnableClientState(GL_VERTEX_ARRAY);
+        gl.glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        int stacks = 4;
+        int length = 10;
+//
+//        DoubleBuffer verticesBuffer = Buffers.newDirectDoubleBuffer(new double[]{
+//                0, 0, 0,
+//                0, 10, 10,
+//                10, 0, 0,
+//                15, 15, 15
+//        });
+//
+//        verticesBuffer.rewind();
+//        gl.glVertexPointer(3, GL_DOUBLE, 0, verticesBuffer);
+//        gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
+        gl.glPushMatrix();
+        gl.glRotatef(horisontalAngle, 0, 0, 1);
+        new Strip(new Point(0, 0, 0), new Point(0, 30, 0), new Point(0, 30, 10), new Point(0, 0, 10), 5).draw(gl);
+        gl.glPopMatrix();
+
+        gl.glDisableClientState(GL_VERTEX_ARRAY);
+        gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 }
+
