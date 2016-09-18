@@ -15,7 +15,7 @@ public class Side {
     public Side(Point x0, Point x1, Point x2, Point x3, int slices) {
         strips = new ArrayList<>();
 
-        for (int i = 0; i < slices + 1; i++) {
+        for (int i = 0; i < slices; i++) {
             Point p1 = new Point(x0.x + i * (x3.x - x0.x) / slices,
                     x0.y + i * (x3.y - x0.y) / slices,
                     x0.z + i * (x3.z - x0.z) / slices);

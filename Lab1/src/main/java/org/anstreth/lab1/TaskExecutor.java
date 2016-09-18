@@ -12,15 +12,11 @@ import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
-import org.anstreth.lab1.common.Point;
-import org.anstreth.lab1.common.Side;
-import org.anstreth.lab1.common.Strip;
+import org.anstreth.lab1.common.Cube;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
@@ -46,7 +42,9 @@ public class TaskExecutor implements GLEventListener {
     private volatile int currentTask = 1;
 
     private int verticalAngle = 0;
-    private int horisontalAngle = 0;
+    private float horisontalAngle = 0;
+    private double state = 0;
+    private double add = 0.001;
 
     public TaskExecutor(String name) {
         this.name = name;
@@ -245,7 +243,7 @@ public class TaskExecutor implements GLEventListener {
         gl.glPushMatrix();
         gl.glRotatef(horisontalAngle, 0, 0, 1);
 
-        glu.gluSphere(quad, 30, horisontalAngle + 1, verticalAngle + 1);
+        glu.gluSphere(quad, 30, (int)(horisontalAngle + 1), verticalAngle + 1);
 
         gl.glPopMatrix();
         gl.glPopMatrix();
@@ -260,23 +258,22 @@ public class TaskExecutor implements GLEventListener {
         gl.glEnableClientState(GL_VERTEX_ARRAY);
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        int stacks = 4;
-        int length = 10;
-//
-//        DoubleBuffer verticesBuffer = Buffers.newDirectDoubleBuffer(new double[]{
-//                0, 0, 0,
-//                0, 10, 10,
-//                10, 0, 0,
-//                15, 15, 15
-//        });
-//
-//        verticesBuffer.rewind();
-//        gl.glVertexPointer(3, GL_DOUBLE, 0, verticesBuffer);
-//        gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
         gl.glPushMatrix();
         gl.glRotatef(horisontalAngle, 0, 0, 1);
-        new Side(new Point(0, 0, 0), new Point(0, 40, 0), new Point(0, 40, 40), new Point(0, 0, 40), 5).draw(gl);
+        gl.glPushMatrix();
+        gl.glTranslatef(10,10,0);
+        new Cube(20, verticalAngle).draw(gl, 1-state);
+        gl.glTranslatef(-20,-20,0);
+        new Cube(20, verticalAngle).draw(gl, state);
         gl.glPopMatrix();
+        gl.glPopMatrix();
+
+        if (state>1 || state<0) {
+            add = -add;
+        }
+
+        horisontalAngle+=0.1;
+        state += add;
 
         gl.glDisableClientState(GL_VERTEX_ARRAY);
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
