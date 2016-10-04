@@ -1,5 +1,10 @@
 group 'org.anstreth'
 version '1.0-SNAPSHOT'
 
+apply plugin: 'application'
 
 mainClassName = "org.anstreth.lab1.Lab1"
+
+dependencies {
+    compile project(':Common')
+}

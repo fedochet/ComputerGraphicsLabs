@@ -1,4 +1,4 @@
-package org.anstreth.lab1.common;
+package org.anstreth.common;
 
 import static java.lang.Math.*;
 

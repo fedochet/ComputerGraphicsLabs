@@ -4,14 +4,9 @@ subprojects {
     version '1.0-SNAPSHOT'
 
     apply plugin: 'java'
-    apply plugin: 'application'
 
     repositories {
         mavenCentral()
-    }
-
-    run {
-        standardInput = System.in
     }
 
     sourceCompatibility = 1.8

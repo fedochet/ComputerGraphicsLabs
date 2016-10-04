@@ -12,7 +12,7 @@ import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
-import org.anstreth.lab1.common.Cube;
+import org.anstreth.common.Cube;
 
 import java.io.File;
 import java.io.IOException;
@@ -243,7 +243,7 @@ public class TaskExecutor implements GLEventListener {
         gl.glPushMatrix();
         gl.glRotatef(horisontalAngle, 0, 0, 1);
 
-        glu.gluSphere(quad, 30, (int)(horisontalAngle + 1), verticalAngle + 1);
+        glu.gluCylinder(quad, 10, 10, 10, 4, 1);
 
         gl.glPopMatrix();
         gl.glPopMatrix();
@@ -261,18 +261,18 @@ public class TaskExecutor implements GLEventListener {
         gl.glPushMatrix();
         gl.glRotatef(horisontalAngle, 0, 0, 1);
         gl.glPushMatrix();
-        gl.glTranslatef(10,10,0);
-        new Cube(20, verticalAngle).draw(gl, 1-state);
-        gl.glTranslatef(-20,-20,0);
+        gl.glTranslatef(10, 10, 0);
+        new Cube(20, verticalAngle).draw(gl, 1 - state);
+        gl.glTranslatef(-20, -20, 0);
         new Cube(20, verticalAngle).draw(gl, state);
         gl.glPopMatrix();
         gl.glPopMatrix();
 
-        if (state>1 || state<0) {
+        if (state < 0) {
             add = -add;
         }
 
-        horisontalAngle+=0.1;
+        horisontalAngle += 0.1;
         state += add;
 
         gl.glDisableClientState(GL_VERTEX_ARRAY);

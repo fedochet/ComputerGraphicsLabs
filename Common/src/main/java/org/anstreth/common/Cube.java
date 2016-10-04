@@ -1,8 +1,6 @@
-package org.anstreth.lab1.common;
+package org.anstreth.common;
 
 import com.jogamp.opengl.GL2;
-import org.anstreth.lab1.common.Point;
-import org.anstreth.lab1.common.Side;
 
 import java.util.ArrayList;
 import java.util.List;
