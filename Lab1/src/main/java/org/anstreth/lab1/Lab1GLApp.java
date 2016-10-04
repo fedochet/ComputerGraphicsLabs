@@ -6,12 +6,11 @@ import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
-import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.jogamp.opengl.util.Animator;
-import com.jogamp.opengl.util.gl2.GLUT;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
+import org.anstreth.common.AbstractOpenGLApp;
 import org.anstreth.common.primitives.Cube;
 
 import java.io.File;
@@ -33,11 +32,7 @@ import static com.jogamp.opengl.glu.GLU.GLU_SMOOTH;
 /**
  * Created by roman on 09.09.2016.
  */
-public class TaskExecutor implements GLEventListener {
-    private GLU glu = new GLU();
-    private GLUT glut = new GLUT();
-
-    private final String name;
+public class Lab1GLApp extends AbstractOpenGLApp {
     private float angle = 0;
     private volatile int currentTask = 1;
 
@@ -46,28 +41,14 @@ public class TaskExecutor implements GLEventListener {
     private double state = 0;
     private double add = 0.001;
 
-    public TaskExecutor(String name) {
-        this.name = name;
+    public Lab1GLApp(String name) {
+        super(name);
     }
 
+    @Override
     public void start() {
-        GLProfile glp = GLProfile.get(GLProfile.GL2);
-
-        GLCapabilities caps = new GLCapabilities(glp);
-
-        GLWindow glWindow = GLWindow.create(caps);
-        glWindow.setTitle(name);
-        glWindow.addGLEventListener(this);
-        glWindow.setSize(640, 480);
-        glWindow.setVisible(true);
-
-        glWindow.addWindowListener(new WindowAdapter() {
-            public void windowDestroyNotify(WindowEvent e) {
-                System.exit(0);
-            }
-        });
-
-        glWindow.addKeyListener(new KeyListener() {
+        super.start();
+        getGlWindow().addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
             }
@@ -96,13 +77,11 @@ public class TaskExecutor implements GLEventListener {
                 }
             }
         });
-
-        Animator animator = new Animator(glWindow);
-        animator.start();
     }
 
     private Texture earthTexture;
 
+    @Override
     public void init(GLAutoDrawable drawable) {
         final GL2 gl = drawable.getGL().getGL2();
 
@@ -135,11 +114,6 @@ public class TaskExecutor implements GLEventListener {
         gl2.glMatrixMode(GL_MODELVIEW);
         gl2.glLoadIdentity();
         glu.gluLookAt(-5, -5, 10, 10, 10, 0, 0, 0, 1);
-    }
-
-    @Override
-    public void dispose(GLAutoDrawable drawable) {
-
     }
 
     @Override

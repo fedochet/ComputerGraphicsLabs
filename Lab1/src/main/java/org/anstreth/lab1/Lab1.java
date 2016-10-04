@@ -6,14 +6,10 @@ package org.anstreth.lab1;
 
 public class Lab1 {
 
-    private float angle = 0;
-
-    //    static private String[] tasks = {"Конус и шар", "Поворот", "Куб и сфера", "Текстура", "Морфинг"};
-
-    static private TaskExecutor taskExecutor = new TaskExecutor("Lab 1");
+    static private Lab1GLApp lab1GLApp = new Lab1GLApp("Lab 1");
 
     public static void main(String[] args) {
         System.out.println("It's #1 lab.");
-        taskExecutor.start();
+        lab1GLApp.start();
     }
 }
