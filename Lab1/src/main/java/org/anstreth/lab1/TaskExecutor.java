@@ -12,7 +12,7 @@ import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
-import org.anstreth.common.Cube;
+import org.anstreth.common.primitives.Cube;
 
 import java.io.File;
 import java.io.IOException;

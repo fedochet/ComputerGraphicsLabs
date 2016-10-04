@@ -1,4 +1,4 @@
-package org.anstreth.common;
+package org.anstreth.common.primitives;
 
 import com.jogamp.opengl.GL2;
 
