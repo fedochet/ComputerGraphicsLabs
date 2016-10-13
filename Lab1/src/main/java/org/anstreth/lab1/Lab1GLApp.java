@@ -83,14 +83,7 @@ public class Lab1GLApp extends AbstractOpenGLApp {
 
     @Override
     public void init(GLAutoDrawable drawable) {
-        final GL2 gl = drawable.getGL().getGL2();
-
-        gl.glShadeModel(GL_SMOOTH);
-        gl.glClearColor(0f, 0f, 0f, 0f);
-        gl.glClearDepth(1.0f);
-        gl.glEnable(GL_DEPTH_TEST);
-        gl.glDepthFunc(GL_LEQUAL);
-        gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+        super.init(drawable);
 
         try {
             earthTexture = TextureIO.newTexture(getTextureFile(), true);
@@ -99,39 +92,10 @@ public class Lab1GLApp extends AbstractOpenGLApp {
         }
     }
 
-    public void reshape(GLAutoDrawable drawable, int x, int y, int w, int h) {
-        GL2 gl2 = drawable.getGL().getGL2();
-
-        gl2.glViewport(0, 0, w, h);
-
-        final float hh = (float) w / (float) h;
-        double mul = 0.01;
-
-        gl2.glMatrixMode(GL_PROJECTION);
-        gl2.glLoadIdentity();
-        int size = 80;
-        gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
-        gl2.glMatrixMode(GL_MODELVIEW);
-        gl2.glLoadIdentity();
-        glu.gluLookAt(-5, -5, 10, 10, 10, 0, 0, 0, 1);
-    }
-
     @Override
     public void display(GLAutoDrawable drawable) {
-
+        super.display(drawable);
         GL2 gl2 = drawable.getGL().getGL2();
-
-//        glu.gluLookAt(-10, -10, verticalAngle, 10, 10, 0, 0, 0, 1);
-
-        gl2.glShadeModel(GL2.GL_SMOOTH);
-        gl2.glClearColor(0f, 0f, 0f, 0f);
-        gl2.glClearDepth(1.0f);
-        gl2.glEnable(GL_DEPTH_TEST);
-        gl2.glDepthFunc(GL_LEQUAL);
-        gl2.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-        gl2.glClearColor(0, 0, 0, 1);
-        gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         switch (currentTask) {
             case 1:
