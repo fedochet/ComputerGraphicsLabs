@@ -11,9 +11,6 @@ import static com.jogamp.opengl.fixedfunc.GLLightingFunc.*;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 
-/**
- * Created by roman on 05.10.2016.
- */
 public class Lab2GLApp extends AbstractOpenGLApp {
 
     private int verticalAngle = 1;
@@ -109,10 +106,15 @@ public class Lab2GLApp extends AbstractOpenGLApp {
     }
 
     private void drawSphere(GL2 gl2) {
+        gl2.glMaterialfv(GL_FRONT, GL_AMBIENT, mat2_amb, 0);
+        gl2.glMaterialfv(GL_FRONT, GL_DIFFUSE, mat2_dif, 0);
+        gl2.glMaterialfv(GL_FRONT, GL_SPECULAR, mat2_spec, 0);
+        gl2.glMaterialf(GL_FRONT, GL_SHININESS, mat2_shininess);
+
         gl2.glPushMatrix();
-        gl2.glTranslatef(0,0,-1);
+        gl2.glTranslatef(0, 0, -1);
         gl2.glColor4f(1.0f, 0.0f, 1f, 1);
-        glut.glutSolidSphere(0.5, 20, 20);
+        glut.glutSolidSphere(0.5, 100, 100);
         gl2.glPopMatrix();
     }
 
