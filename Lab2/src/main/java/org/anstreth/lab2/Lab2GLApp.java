@@ -78,7 +78,7 @@ public class Lab2GLApp extends AbstractOpenGLApp {
         gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
         gl2.glMatrixMode(GL_MODELVIEW);
         gl2.glLoadIdentity();
-        glu.gluLookAt(-2, -2, -2, 0, 0, 0, 0, 0, 1);
+        glu.gluLookAt(2, 2, 2, 0, 0, 0, 0, 0, 1);
     }
 
     @Override
@@ -87,12 +87,33 @@ public class Lab2GLApp extends AbstractOpenGLApp {
 
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        gl2.glColor4f(1.0f, 0.0f, 0.0f, 1); // Set the colour to green and fully opaque
-        glut.glutSolidCube(1.0f);
+        gl2.glPushMatrix();
+        gl2.glRotatef(verticalAngle++, 0, 0, 1);
 
-        gl2.glColor4f(0.0f, 1.0f, 0.0f, transperency); // Set the colour to green and fully opaque
-        glut.glutSolidCube(2.0f);
+        drawSphere(gl2);
+        drawCone(gl2);
+        drawTorus(gl2);
 
+        gl2.glPopMatrix();
+
+    }
+
+    private void drawTorus(GL2 gl2) {
+        gl2.glColor4f(0.0f, 1.0f, 0.0f, transperency);
+        glut.glutSolidTorus(0.3f, 1f, 20, 20);
+    }
+
+    private void drawCone(GL2 gl2) {
+        gl2.glColor4f(1.0f, 0.0f, 0.0f, 1);
+        glut.glutSolidCone(0.5, 2, 10, 10);
+    }
+
+    private void drawSphere(GL2 gl2) {
+        gl2.glPushMatrix();
+        gl2.glTranslatef(0,0,-1);
+        gl2.glColor4f(1.0f, 0.0f, 1f, 1);
+        glut.glutSolidSphere(0.5, 20, 20);
+        gl2.glPopMatrix();
     }
 
     @Override
