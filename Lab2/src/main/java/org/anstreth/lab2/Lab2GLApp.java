@@ -14,8 +14,9 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 public class Lab2GLApp extends AbstractOpenGLApp {
 
     private int verticalAngle = 1;
-    private int horisontalAngle = 1;
-    private float transperency = 0.5f;
+    private int horisontalAngle = 0;
+    private float transperency = 0f;
+    private int lightIntence = 0;
 
     public Lab2GLApp() {
         super("Lab 2");
@@ -39,7 +40,7 @@ public class Lab2GLApp extends AbstractOpenGLApp {
     float mat2_shininess = 0.7f * 128;
 
     /* параметры материала шара */
-    float mat3_dif[] = {0.9f, 0.2f, 0.0f, 0f};
+    float mat3_dif[] = {0.9f, 0.2f, 0.2f, 0f};
     float mat3_amb[] = {0.2f, 0.2f, 0.2f};
     float mat3_spec[] = {0.6f, 0.6f, 0.6f};
     float mat3_shininess = 0.1f * 128;
@@ -51,13 +52,23 @@ public class Lab2GLApp extends AbstractOpenGLApp {
 
         gl2.glEnable(GL_DEPTH_TEST);
 
-        gl2.glEnable(GL_LIGHTING);
-        gl2.glEnable(GL_LIGHT0);
+        firstLightSetup(gl2);
 
         gl2.glEnable(GL_BLEND); // Enable the OpenGL Blending functionality
         gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         gl2.glEnable(GL_COLOR_MATERIAL);
 
+    }
+
+    private void firstLightSetup(GL2 gl2) {
+        float[] lightPosition = floats(2, 2, 2, 1);
+        float[] direction = floats(-1, -1, -1, 1);
+        float spotCutoff = 15;
+        gl2.glEnable(GL_LIGHTING);
+        gl2.glEnable(GL_LIGHT0);
+        gl2.glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, spotCutoff);
+        gl2.glLightfv(GL_LIGHT0, GL_POSITION, lightPosition, 0);
+        gl2.glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, direction, 0);
     }
 
     @Override
@@ -83,12 +94,12 @@ public class Lab2GLApp extends AbstractOpenGLApp {
         GL2 gl2 = drawable.getGL().getGL2();
 
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        firstLightSetup(gl2);
         gl2.glPushMatrix();
         gl2.glRotatef(verticalAngle++, 0, 0, 1);
 
-        drawSphere(gl2);
         drawCone(gl2);
+        drawSphere(gl2);
         drawTorus(gl2);
 
         gl2.glPopMatrix();
@@ -106,14 +117,14 @@ public class Lab2GLApp extends AbstractOpenGLApp {
     }
 
     private void drawSphere(GL2 gl2) {
-        gl2.glMaterialfv(GL_FRONT, GL_AMBIENT, mat2_amb, 0);
-        gl2.glMaterialfv(GL_FRONT, GL_DIFFUSE, mat2_dif, 0);
-        gl2.glMaterialfv(GL_FRONT, GL_SPECULAR, mat2_spec, 0);
-        gl2.glMaterialf(GL_FRONT, GL_SHININESS, mat2_shininess);
+        gl2.glMaterialfv(GL_FRONT, GL_AMBIENT, mat3_amb, 0);
+        gl2.glMaterialfv(GL_FRONT, GL_DIFFUSE, mat3_dif, 0);
+        gl2.glMaterialfv(GL_FRONT, GL_SPECULAR, mat3_spec, 0);
+        gl2.glMaterialf(GL_FRONT, GL_SHININESS, mat3_shininess);
 
         gl2.glPushMatrix();
         gl2.glTranslatef(0, 0, -1);
-        gl2.glColor4f(1.0f, 0.0f, 1f, 1);
+        gl2.glColor4f(0f, 0.0f, 1f, 1);
         glut.glutSolidSphere(0.5, 100, 100);
         gl2.glPopMatrix();
     }
@@ -134,16 +145,18 @@ public class Lab2GLApp extends AbstractOpenGLApp {
                 double transparencyStep = 0.1;
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_UP:
+                        lightIntence++;
                         transperency += transparencyStep;
                         break;
                     case KeyEvent.VK_DOWN:
+                        lightIntence--;
                         transperency -= transparencyStep;
                         break;
                     case KeyEvent.VK_LEFT:
-                        horisontalAngle++;
+                        horisontalAngle-=10;
                         break;
                     case KeyEvent.VK_RIGHT:
-                        horisontalAngle--;
+                        horisontalAngle+=10;
                         break;
                 }
             }
