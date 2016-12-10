@@ -14,9 +14,8 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 public class Lab2GLApp extends AbstractOpenGLApp {
 
     private int verticalAngle = 1;
-    private int horisontalAngle = 0;
     private float transperency = 0f;
-    private int lightIntence = 0;
+    private float firstLightPositionZ = 2;
 
     public Lab2GLApp() {
         super("Lab 2");
@@ -66,7 +65,7 @@ public class Lab2GLApp extends AbstractOpenGLApp {
     }
 
     private void firstLightSetup(GL2 gl2) {
-        float[] lightPosition = floats(2, 2, 2, 1);
+        float[] lightPosition = floats(2, 2, firstLightPositionZ, 1);
         float[] direction = floats(-1, -1, -1, 1);
         float[] lightDiffuse = floats(1, 0, 0, 1);
         float spotCutoff = 12;
@@ -110,6 +109,7 @@ public class Lab2GLApp extends AbstractOpenGLApp {
         GL2 gl2 = drawable.getGL().getGL2();
 
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        gl2.glClearColor(1,1,1,0);
         lightSetup(gl2);
         gl2.glPushMatrix();
         gl2.glRotatef(verticalAngle++, 0, 0, 1);
@@ -161,18 +161,16 @@ public class Lab2GLApp extends AbstractOpenGLApp {
                 double transparencyStep = 0.1;
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_UP:
-                        lightIntence++;
                         transperency += transparencyStep;
                         break;
                     case KeyEvent.VK_DOWN:
-                        lightIntence--;
                         transperency -= transparencyStep;
                         break;
                     case KeyEvent.VK_LEFT:
-                        horisontalAngle-=10;
+                        firstLightPositionZ -=transparencyStep;
                         break;
                     case KeyEvent.VK_RIGHT:
-                        horisontalAngle+=10;
+                        firstLightPositionZ +=transparencyStep;
                         break;
                 }
             }
