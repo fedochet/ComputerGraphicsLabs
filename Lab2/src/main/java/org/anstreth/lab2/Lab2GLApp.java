@@ -52,7 +52,7 @@ public class Lab2GLApp extends AbstractOpenGLApp {
 
         gl2.glEnable(GL_DEPTH_TEST);
 
-        firstLightSetup(gl2);
+        lightSetup(gl2);
 
         gl2.glEnable(GL_BLEND); // Enable the OpenGL Blending functionality
         gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -60,15 +60,31 @@ public class Lab2GLApp extends AbstractOpenGLApp {
 
     }
 
+    private void lightSetup(GL2 gl2) {
+        firstLightSetup(gl2);
+        secondLightSetup(gl2);
+    }
+
     private void firstLightSetup(GL2 gl2) {
         float[] lightPosition = floats(2, 2, 2, 1);
         float[] direction = floats(-1, -1, -1, 1);
-        float spotCutoff = 15;
+        float[] lightDiffuse = floats(1, 0, 0, 1);
+        float spotCutoff = 12;
         gl2.glEnable(GL_LIGHTING);
         gl2.glEnable(GL_LIGHT0);
         gl2.glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, spotCutoff);
         gl2.glLightfv(GL_LIGHT0, GL_POSITION, lightPosition, 0);
         gl2.glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, direction, 0);
+        gl2.glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse, 0);
+        gl2.glLightfv(GL_LIGHT0, GL_SPECULAR, lightDiffuse, 0);
+    }
+
+    private void secondLightSetup(GL2 gl2) {
+        float[] lightDiffuse = floats(1, 1, 1, 1);
+        gl2.glEnable(GL_LIGHTING);
+        gl2.glEnable(GL_LIGHT1);
+        gl2.glLightfv(GL_LIGHT1, GL_DIFFUSE, lightDiffuse, 0);
+        gl2.glLightfv(GL_LIGHT1, GL_SPECULAR, lightDiffuse, 0);
     }
 
     @Override
@@ -94,7 +110,7 @@ public class Lab2GLApp extends AbstractOpenGLApp {
         GL2 gl2 = drawable.getGL().getGL2();
 
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        firstLightSetup(gl2);
+        lightSetup(gl2);
         gl2.glPushMatrix();
         gl2.glRotatef(verticalAngle++, 0, 0, 1);
 
