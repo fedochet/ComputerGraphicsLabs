@@ -16,6 +16,7 @@ public class Lab2GLApp extends AbstractOpenGLApp {
     private int verticalAngle = 1;
     private float transperency = 0f;
     private float firstLightPositionZ = 2;
+    private float secondLightAngle = 0;
 
     public Lab2GLApp() {
         super("Lab 2");
@@ -79,9 +80,14 @@ public class Lab2GLApp extends AbstractOpenGLApp {
     }
 
     private void secondLightSetup(GL2 gl2) {
+        int radius = 2;
+        float x = (float) (radius * Math.cos(secondLightAngle));
+        float y = (float) (radius * Math.sin(secondLightAngle));
+        float[] lightPosition = floats(x, y, 2, 1);
         float[] lightDiffuse = floats(1, 1, 1, 1);
         gl2.glEnable(GL_LIGHTING);
         gl2.glEnable(GL_LIGHT1);
+        gl2.glLightfv(GL_LIGHT1, GL_POSITION, lightPosition, 0);
         gl2.glLightfv(GL_LIGHT1, GL_DIFFUSE, lightDiffuse, 0);
         gl2.glLightfv(GL_LIGHT1, GL_SPECULAR, lightDiffuse, 0);
     }
@@ -109,7 +115,7 @@ public class Lab2GLApp extends AbstractOpenGLApp {
         GL2 gl2 = drawable.getGL().getGL2();
 
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        gl2.glClearColor(1,1,1,0);
+        gl2.glClearColor(1, 1, 1, 0);
         lightSetup(gl2);
         gl2.glPushMatrix();
         gl2.glRotatef(verticalAngle++, 0, 0, 1);
@@ -162,15 +168,17 @@ public class Lab2GLApp extends AbstractOpenGLApp {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_UP:
                         transperency += transparencyStep;
+                        firstLightPositionZ += transparencyStep;
                         break;
                     case KeyEvent.VK_DOWN:
                         transperency -= transparencyStep;
-                        break;
-                    case KeyEvent.VK_LEFT:
-                        firstLightPositionZ -=transparencyStep;
+                        firstLightPositionZ -= transparencyStep;
                         break;
                     case KeyEvent.VK_RIGHT:
-                        firstLightPositionZ +=transparencyStep;
+                        secondLightAngle += transparencyStep;
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        secondLightAngle -= transparencyStep;
                         break;
                 }
             }
