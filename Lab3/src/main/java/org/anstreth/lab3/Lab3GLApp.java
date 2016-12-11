@@ -43,7 +43,7 @@ class Lab3GLApp extends AbstractOpenGLApp {
 
         gl2.glMatrixMode(GL_PROJECTION);
         gl2.glLoadIdentity();
-        int size = 3;
+        int size = 40;
         gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
         setUpCameraLookAt(gl2);
 
@@ -57,7 +57,44 @@ class Lab3GLApp extends AbstractOpenGLApp {
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         gl2.glClearColor(1, 1, 1, 0);
 
-        glut.glutSolidCube(1);
+        drawRoom(gl2);
+    }
+
+    private void drawRoom(GL2 gl2) {
+        int roomSize = 10;
+
+        glut.glutSolidCube(roomSize);
+
+        drawCubeWithCenterIn(gl2, roomSize);
+
+        gl2.glPushMatrix();
+        gl2.glTranslatef(0, roomSize, 0);
+        glut.glutSolidCube(roomSize);
+        gl2.glPopMatrix();
+
+        gl2.glPushMatrix();
+        gl2.glTranslatef(0, -roomSize, 0);
+        glut.glutSolidCube(roomSize);
+        gl2.glPopMatrix();
+
+        gl2.glPushMatrix();
+        gl2.glTranslatef(0, 0, roomSize);
+        glut.glutSolidCube(roomSize);
+        gl2.glPopMatrix();
+
+        gl2.glPushMatrix();
+        gl2.glTranslatef(0, 0, -roomSize);
+        glut.glutSolidCube(roomSize);
+        gl2.glPopMatrix();
+
+
+    }
+
+    private void drawCubeWithCenterIn(GL2 gl2, int roomSize) {
+        gl2.glPushMatrix();
+        gl2.glTranslatef(-roomSize, 0, 0);
+        glut.glutSolidCube(roomSize);
+        gl2.glPopMatrix();
     }
 
     private void setUpCameraLookAt(GL2 gl2) {
