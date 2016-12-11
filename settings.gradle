@@ -2,4 +2,5 @@ rootProject.name = 'ComputerGraphicsLabs'
 include 'Lab1'
 include 'Lab2'
 include 'Common'
+include 'Lab3'
 
