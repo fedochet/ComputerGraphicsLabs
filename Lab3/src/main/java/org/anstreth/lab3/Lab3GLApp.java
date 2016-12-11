@@ -62,39 +62,51 @@ class Lab3GLApp extends AbstractOpenGLApp {
 
     private void drawRoom(GL2 gl2) {
         int roomSize = 10;
-
-        glut.glutSolidCube(roomSize);
-
-        drawCubeWithCenterIn(gl2, roomSize);
-
-        gl2.glPushMatrix();
-        gl2.glTranslatef(0, roomSize, 0);
-        glut.glutSolidCube(roomSize);
-        gl2.glPopMatrix();
-
-        gl2.glPushMatrix();
-        gl2.glTranslatef(0, -roomSize, 0);
-        glut.glutSolidCube(roomSize);
-        gl2.glPopMatrix();
-
-        gl2.glPushMatrix();
-        gl2.glTranslatef(0, 0, roomSize);
-        glut.glutSolidCube(roomSize);
-        gl2.glPopMatrix();
-
-        gl2.glPushMatrix();
-        gl2.glTranslatef(0, 0, -roomSize);
-        glut.glutSolidCube(roomSize);
-        gl2.glPopMatrix();
-
-
+        new RoomDrawer(gl2, roomSize).draw();
     }
 
-    private void drawCubeWithCenterIn(GL2 gl2, int roomSize) {
-        gl2.glPushMatrix();
-        gl2.glTranslatef(-roomSize, 0, 0);
-        glut.glutSolidCube(roomSize);
-        gl2.glPopMatrix();
+    class RoomDrawer {
+        GL2 gl2;
+        private int roomSize;
+        private float[] roomCoords;
+
+        RoomDrawer(GL2 gl2, int roomSize) {
+            this(gl2, roomSize, new float[] {0f,0f,0f});
+        }
+
+        RoomDrawer(GL2 gl2, int roomSize, float[] roomCoords) {
+            this.gl2 = gl2;
+            this.roomSize = roomSize;
+            this.roomCoords = roomCoords;
+        }
+
+        void draw() {
+            gl2.glPushMatrix();
+            gl2.glTranslatef(-roomSize, 0, 0);
+            glut.glutSolidCube(roomSize);
+            gl2.glPopMatrix();
+
+            gl2.glPushMatrix();
+            gl2.glTranslatef(0, roomSize, 0);
+            glut.glutSolidCube(roomSize);
+            gl2.glPopMatrix();
+
+            gl2.glPushMatrix();
+            gl2.glTranslatef(0, -roomSize, 0);
+            glut.glutSolidCube(roomSize);
+            gl2.glPopMatrix();
+
+            gl2.glPushMatrix();
+            gl2.glTranslatef(0, 0, roomSize);
+            glut.glutSolidCube(roomSize);
+            gl2.glPopMatrix();
+
+            gl2.glPushMatrix();
+            gl2.glTranslatef(0, 0, -roomSize);
+            glut.glutSolidCube(roomSize);
+            gl2.glPopMatrix();
+
+        }
     }
 
     private void setUpCameraLookAt(GL2 gl2) {
