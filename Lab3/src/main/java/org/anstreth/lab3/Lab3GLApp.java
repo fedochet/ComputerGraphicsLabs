@@ -65,7 +65,7 @@ class Lab3GLApp extends AbstractOpenGLApp {
         new RoomDrawer(gl2, roomSize).draw();
     }
 
-    class RoomDrawer {
+    private class RoomDrawer {
         GL2 gl2;
         private int roomSize;
         private float[] roomCoords;
@@ -82,30 +82,21 @@ class Lab3GLApp extends AbstractOpenGLApp {
 
         void draw() {
             gl2.glPushMatrix();
-            gl2.glTranslatef(-roomSize, 0, 0);
-            glut.glutSolidCube(roomSize);
+            gl2.glTranslatef(roomCoords[0], roomCoords[1], roomCoords[2]);
+            drawCubeWithCenterIn(-roomSize, 0, 0);
+            drawCubeWithCenterIn(0, roomSize, 0);
+            drawCubeWithCenterIn(0, -roomSize, 0);
+            drawCubeWithCenterIn(0, 0, roomSize);
+            drawCubeWithCenterIn(0, 0, -roomSize);
             gl2.glPopMatrix();
 
+        }
+
+        private void drawCubeWithCenterIn(int x, int y, int z) {
             gl2.glPushMatrix();
-            gl2.glTranslatef(0, roomSize, 0);
+            gl2.glTranslatef(x, y, z);
             glut.glutSolidCube(roomSize);
             gl2.glPopMatrix();
-
-            gl2.glPushMatrix();
-            gl2.glTranslatef(0, -roomSize, 0);
-            glut.glutSolidCube(roomSize);
-            gl2.glPopMatrix();
-
-            gl2.glPushMatrix();
-            gl2.glTranslatef(0, 0, roomSize);
-            glut.glutSolidCube(roomSize);
-            gl2.glPopMatrix();
-
-            gl2.glPushMatrix();
-            gl2.glTranslatef(0, 0, -roomSize);
-            glut.glutSolidCube(roomSize);
-            gl2.glPopMatrix();
-
         }
     }
 
