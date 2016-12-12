@@ -9,15 +9,16 @@ import com.jogamp.opengl.GLAutoDrawable;
 import org.anstreth.common.AbstractOpenGLApp;
 
 import static com.jogamp.opengl.GL.*;
-import static com.jogamp.opengl.GL.GL_ONE_MINUS_SRC_ALPHA;
-import static com.jogamp.opengl.GL.GL_SRC_ALPHA;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.*;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 
+// TODO draw cylinder, sphere on top of it and thorus
 class Lab3GLApp extends AbstractOpenGLApp {
     private float cameraZcoord = 2;
     private float cameraYcoord = 2;
+
+    private RoomDrawer roomDrawer;
 
     Lab3GLApp() {
         super("Lab 3");
@@ -25,13 +26,15 @@ class Lab3GLApp extends AbstractOpenGLApp {
 
     @Override
     public void init(GLAutoDrawable drawable) {
+        int roomSize = 20;
         GL2 gl2 = drawable.getGL().getGL2();
+        roomDrawer = new RoomDrawer(gl2, roomSize);
         gl2.glEnable(GL_BLEND);
         gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         gl2.glEnable(GL_DEPTH_TEST);
     }
 
-    private float[] lightPosition = {0,0,0,1};
+    private float[] lightPosition = {11, 0, 0, 1};
     private float[] lightDirection = {-1, 0, 0};
 
     private void setUpLight(GL2 gl2) {
@@ -67,12 +70,15 @@ class Lab3GLApp extends AbstractOpenGLApp {
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         gl2.glClearColor(1, 1, 1, 0);
 
-        drawRoom(gl2);
+        roomDrawer.draw();
+        drawCylinder(gl2);
     }
 
-    private void drawRoom(GL2 gl2) {
-        int roomSize = 10;
-        new RoomDrawer(gl2, roomSize).draw();
+    private void drawCylinder(GL2 gl2) {
+        gl2.glPushMatrix();
+        gl2.glTranslatef(0, 0, -10);
+        glut.glutSolidCylinder(3, 7, 20, 20);
+        gl2.glPopMatrix();
     }
 
     private class RoomDrawer {
@@ -81,7 +87,7 @@ class Lab3GLApp extends AbstractOpenGLApp {
         private float[] roomCoords;
 
         RoomDrawer(GL2 gl2, int roomSize) {
-            this(gl2, roomSize, new float[] {0f,0f,0f});
+            this(gl2, roomSize, new float[]{0f, 0f, 0f});
         }
 
         RoomDrawer(GL2 gl2, int roomSize, float[] roomCoords) {
@@ -122,8 +128,8 @@ class Lab3GLApp extends AbstractOpenGLApp {
         getGlWindow().addMouseListener(new MouseAdapter() {
             int x;
             int y;
-            int startCameraY;
-            int startCameraZ;
+            float startCameraY;
+            float startCameraZ;
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -133,14 +139,15 @@ class Lab3GLApp extends AbstractOpenGLApp {
             private void updateCoords(MouseEvent e) {
                 x = e.getX();
                 y = e.getY();
-                startCameraY = (int) cameraYcoord;
-                startCameraZ = (int) cameraZcoord;
+                startCameraY = cameraYcoord;
+                startCameraZ = cameraZcoord;
             }
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                cameraYcoord = startCameraY - (e.getX() - x)/100f;
-                cameraZcoord = startCameraZ + (e.getY() - y)/100f;
+                float speedCompensator = 0.01f;
+                cameraYcoord = startCameraY - (e.getX() - x) * speedCompensator;
+                cameraZcoord = startCameraZ + (e.getY() - y) * speedCompensator;
             }
         });
         getGlWindow().addKeyListener(new KeyListener() {
