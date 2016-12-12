@@ -2,6 +2,8 @@ package org.anstreth.lab3;
 
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
+import com.jogamp.newt.event.MouseAdapter;
+import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import org.anstreth.common.AbstractOpenGLApp;
@@ -9,8 +11,7 @@ import org.anstreth.common.AbstractOpenGLApp;
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.GL.GL_ONE_MINUS_SRC_ALPHA;
 import static com.jogamp.opengl.GL.GL_SRC_ALPHA;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHT0;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.*;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 
@@ -25,12 +26,21 @@ class Lab3GLApp extends AbstractOpenGLApp {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl2 = drawable.getGL().getGL2();
-
-        gl2.glEnable(GL_LIGHTING);
-        gl2.glEnable(GL_LIGHT0);
         gl2.glEnable(GL_BLEND);
         gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         gl2.glEnable(GL_DEPTH_TEST);
+    }
+
+    private float[] lightPosition = {0,0,0,1};
+    private float[] lightDirection = {-1, 0, 0};
+
+    private void setUpLight(GL2 gl2) {
+        float spotCutoff = 90;
+        gl2.glEnable(GL_LIGHTING);
+        gl2.glEnable(GL_LIGHT0);
+        gl2.glLightfv(GL_LIGHT0, GL_POSITION, lightPosition, 0);
+        gl2.glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, lightDirection, 0);
+        gl2.glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, spotCutoff);
     }
 
     @Override
@@ -43,17 +53,17 @@ class Lab3GLApp extends AbstractOpenGLApp {
 
         gl2.glMatrixMode(GL_PROJECTION);
         gl2.glLoadIdentity();
-        int size = 40;
+        int size = 20;
         gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
-        setUpCameraLookAt(gl2);
+        setUpCameraPosition(gl2);
 
     }
 
     @Override
     public void display(GLAutoDrawable drawable) {
         GL2 gl2 = drawable.getGL().getGL2();
-        setUpCameraLookAt(gl2);
-
+        setUpCameraPosition(gl2);
+        setUpLight(gl2);
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         gl2.glClearColor(1, 1, 1, 0);
 
@@ -100,7 +110,7 @@ class Lab3GLApp extends AbstractOpenGLApp {
         }
     }
 
-    private void setUpCameraLookAt(GL2 gl2) {
+    private void setUpCameraPosition(GL2 gl2) {
         gl2.glMatrixMode(GL_MODELVIEW);
         gl2.glLoadIdentity();
         glu.gluLookAt(2, cameraYcoord, cameraZcoord, 0, 0, 0, 0, 0, 1);
@@ -109,6 +119,30 @@ class Lab3GLApp extends AbstractOpenGLApp {
     @Override
     public void start() {
         super.start();
+        getGlWindow().addMouseListener(new MouseAdapter() {
+            int x;
+            int y;
+            int startCameraY;
+            int startCameraZ;
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                updateCoords(e);
+            }
+
+            private void updateCoords(MouseEvent e) {
+                x = e.getX();
+                y = e.getY();
+                startCameraY = (int) cameraYcoord;
+                startCameraZ = (int) cameraZcoord;
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                cameraYcoord = startCameraY - (e.getX() - x)/100f;
+                cameraZcoord = startCameraZ + (e.getY() - y)/100f;
+            }
+        });
         getGlWindow().addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
