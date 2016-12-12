@@ -17,6 +17,7 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 class Lab3GLApp extends AbstractOpenGLApp {
     private float cameraZcoord = 2;
     private float cameraYcoord = 2;
+    private CoordsPair cameraCoordsPair = new CoordsPair(2, 2);
 
     private RoomDrawer roomDrawer;
 
@@ -119,17 +120,24 @@ class Lab3GLApp extends AbstractOpenGLApp {
     private void setUpCameraPosition(GL2 gl2) {
         gl2.glMatrixMode(GL_MODELVIEW);
         gl2.glLoadIdentity();
-        glu.gluLookAt(2, cameraYcoord, cameraZcoord, 0, 0, 0, 0, 0, 1);
+        glu.gluLookAt(2, cameraCoordsPair.first, cameraCoordsPair.second, 0, 0, 0, 0, 0, 1);
+    }
+
+    abstract class CoordsWatcher extends MouseAdapter {
+        CoordsPair pairToWatch;
+
+        CoordsWatcher(CoordsPair pairToWatch) {
+            this.pairToWatch = pairToWatch;
+        }
     }
 
     @Override
     public void start() {
         super.start();
-        getGlWindow().addMouseListener(new MouseAdapter() {
+        getGlWindow().addMouseListener(new CoordsWatcher(cameraCoordsPair) {
             int x;
             int y;
-            float startCameraY;
-            float startCameraZ;
+            CoordsPair startCoordsPair;
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -139,15 +147,14 @@ class Lab3GLApp extends AbstractOpenGLApp {
             private void updateCoords(MouseEvent e) {
                 x = e.getX();
                 y = e.getY();
-                startCameraY = cameraYcoord;
-                startCameraZ = cameraZcoord;
+                startCoordsPair = new CoordsPair(pairToWatch);
             }
 
             @Override
             public void mouseDragged(MouseEvent e) {
                 float speedCompensator = 0.01f;
-                cameraYcoord = startCameraY - (e.getX() - x) * speedCompensator;
-                cameraZcoord = startCameraZ + (e.getY() - y) * speedCompensator;
+                pairToWatch.first = startCoordsPair.first - (e.getX() - x) * speedCompensator;
+                pairToWatch.second = startCoordsPair.second + (e.getY() - y) * speedCompensator;
             }
         });
         getGlWindow().addKeyListener(new KeyListener() {

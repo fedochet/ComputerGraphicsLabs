@@ -1,11 +1,15 @@
 package org.anstreth.lab3;
 
 class CoordsPair {
-    float x;
-    float y;
+    float first;
+    float second;
 
-    public CoordsPair(float x, float y) {
-        this.x = x;
-        this.y = y;
+    CoordsPair(float first, float second) {
+        this.first = first;
+        this.second = second;
+    }
+
+    CoordsPair(CoordsPair pair) {
+        this(pair.first, pair.second);
     }
 }
