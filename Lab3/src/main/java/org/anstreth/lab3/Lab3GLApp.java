@@ -15,9 +15,8 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 
 // TODO draw cylinder, sphere on top of it and thorus
 class Lab3GLApp extends AbstractOpenGLApp {
-    private float cameraZcoord = 2;
-    private float cameraYcoord = 2;
-    private CoordsPair cameraCoordsPair = new CoordsPair(2, 2);
+    private CoordsPair cameraCoordsPair = new CoordsPair(1, 1);
+    private CoordsPair light0CoordsPair = new CoordsPair(0, 0);
 
     private RoomDrawer roomDrawer;
 
@@ -35,16 +34,25 @@ class Lab3GLApp extends AbstractOpenGLApp {
         gl2.glEnable(GL_DEPTH_TEST);
     }
 
-    private float[] lightPosition = {11, 0, 0, 1};
     private float[] lightDirection = {-1, 0, 0};
 
     private void setUpLight(GL2 gl2) {
+        float[] lightPosition = getLightPosition();
         float spotCutoff = 90;
         gl2.glEnable(GL_LIGHTING);
         gl2.glEnable(GL_LIGHT0);
         gl2.glLightfv(GL_LIGHT0, GL_POSITION, lightPosition, 0);
         gl2.glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, lightDirection, 0);
         gl2.glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, spotCutoff);
+
+        gl2.glPushMatrix();
+        gl2.glTranslatef(lightPosition[0], lightPosition[1], lightPosition[2]);
+        glut.glutSolidSphere(1, 10, 10);
+        gl2.glPopMatrix();
+    }
+
+    private float[] getLightPosition() {
+        return new float[]{11, -light0CoordsPair.first, -light0CoordsPair.second, 1};
     }
 
     @Override
@@ -67,12 +75,99 @@ class Lab3GLApp extends AbstractOpenGLApp {
     public void display(GLAutoDrawable drawable) {
         GL2 gl2 = drawable.getGL().getGL2();
         setUpCameraPosition(gl2);
-        setUpLight(gl2);
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         gl2.glClearColor(1, 1, 1, 0);
 
+        setUpLight(gl2);
         roomDrawer.draw();
+        drawShadows(gl2);
         drawCylinder(gl2);
+    }
+
+    private void drawShadows(GL2 gl2) {
+        gl2.glEnable(GL_BLEND);
+        gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        gl2.glDisable(GL_LIGHTING);
+        gl2.glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
+        float[][] matrix = new float[4][4];
+        float[] floorPlane = {0, 0, 1, 9.99f};
+        float[] backWall = {1, 0, 0, 9.99f};
+        float[] leftWall = {0, 1, 0, 9.99f};
+        float[] rightWall = {0, -1, 0, 9.99f};
+        float[] lightPos = getLightPosition();
+
+        shadowmatrix(matrix, floorPlane, lightPos);
+        float[] stripMatrix = stripMatrix(matrix);
+        gl2.glPushMatrix();
+        gl2.glMultMatrixf(stripMatrix, 0);
+        drawCylinder(gl2);
+        gl2.glPopMatrix();
+
+        shadowmatrix(matrix, leftWall, lightPos);
+        stripMatrix = stripMatrix(matrix);
+        gl2.glPushMatrix();
+        gl2.glMultMatrixf(stripMatrix, 0);
+        drawCylinder(gl2);
+        gl2.glPopMatrix();
+
+        shadowmatrix(matrix, rightWall, lightPos);
+        stripMatrix = stripMatrix(matrix);
+        gl2.glPushMatrix();
+        gl2.glMultMatrixf(stripMatrix, 0);
+        drawCylinder(gl2);
+        gl2.glPopMatrix();
+
+        shadowmatrix(matrix, backWall, lightPos);
+        stripMatrix = stripMatrix(matrix);
+        gl2.glPushMatrix();
+        gl2.glMultMatrixf(stripMatrix, 0);
+        drawCylinder(gl2);
+        gl2.glPopMatrix();
+
+        gl2.glEnable(GL_LIGHTING);
+        gl2.glDisable(GL_BLEND);
+    }
+
+    private void shadowmatrix(float matrix[][], float plane[], float lightpos[]) {
+        float dot;
+
+        dot = plane[0] * lightpos[0] +
+                plane[1] * lightpos[1] +
+                plane[2] * lightpos[2] +
+                plane[3] * lightpos[3];
+
+        matrix[0][0] = dot - lightpos[0] * plane[0];
+        matrix[1][0] = 0.f - lightpos[0] * plane[1];
+        matrix[2][0] = 0.f - lightpos[0] * plane[2];
+        matrix[3][0] = 0.f - lightpos[0] * plane[3];
+
+        matrix[0][1] = 0.f - lightpos[1] * plane[0];
+        matrix[1][1] = dot - lightpos[1] * plane[1];
+        matrix[2][1] = 0.f - lightpos[1] * plane[2];
+        matrix[3][1] = 0.f - lightpos[1] * plane[3];
+
+        matrix[0][2] = 0.f - lightpos[2] * plane[0];
+        matrix[1][2] = 0.f - lightpos[2] * plane[1];
+        matrix[2][2] = dot - lightpos[2] * plane[2];
+        matrix[3][2] = 0.f - lightpos[2] * plane[3];
+
+        matrix[0][3] = 0.f - lightpos[3] * plane[0];
+        matrix[1][3] = 0.f - lightpos[3] * plane[1];
+        matrix[2][3] = 0.f - lightpos[3] * plane[2];
+        matrix[3][3] = dot - lightpos[3] * plane[3];
+    }
+
+    private float[] stripMatrix(float[][] matrix) {
+        int size = matrix[0].length * matrix.length;
+        float[] result = new float[size];
+
+        for (int row = 0; row < matrix.length; row++) {
+            for (int column = 0; column < matrix[row].length; column++) {
+                result[column*4 + row] = matrix[column][row];
+            }
+        }
+
+        return result;
     }
 
     private void drawCylinder(GL2 gl2) {
@@ -123,41 +218,15 @@ class Lab3GLApp extends AbstractOpenGLApp {
         glu.gluLookAt(2, cameraCoordsPair.first, cameraCoordsPair.second, 0, 0, 0, 0, 0, 1);
     }
 
-    abstract class CoordsWatcher extends MouseAdapter {
-        CoordsPair pairToWatch;
-
-        CoordsWatcher(CoordsPair pairToWatch) {
-            this.pairToWatch = pairToWatch;
-        }
-    }
-
     @Override
     public void start() {
         super.start();
-        getGlWindow().addMouseListener(new CoordsWatcher(cameraCoordsPair) {
-            int x;
-            int y;
-            CoordsPair startCoordsPair;
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                updateCoords(e);
-            }
-
-            private void updateCoords(MouseEvent e) {
-                x = e.getX();
-                y = e.getY();
-                startCoordsPair = new CoordsPair(pairToWatch);
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                float speedCompensator = 0.01f;
-                pairToWatch.first = startCoordsPair.first - (e.getX() - x) * speedCompensator;
-                pairToWatch.second = startCoordsPair.second + (e.getY() - y) * speedCompensator;
-            }
-        });
+        getGlWindow().addMouseListener(new CoordsWatcher(light0CoordsPair, 0.1f));
         getGlWindow().addKeyListener(new KeyListener() {
+            boolean state = true;
+            CoordsWatcher cameraWatcher = new CoordsWatcher(cameraCoordsPair, 0.01f);
+            CoordsWatcher lightWatcher = new CoordsWatcher(light0CoordsPair, 0.1f);
+
             @Override
             public void keyPressed(KeyEvent e) {
             }
@@ -165,20 +234,65 @@ class Lab3GLApp extends AbstractOpenGLApp {
             @Override
             public void keyReleased(KeyEvent e) {
                 switch (e.getKeyCode()) {
+                    case KeyEvent.VK_SPACE:
+                        switchWatcher();
+                        break;
                     case KeyEvent.VK_UP:
-                        cameraZcoord++;
                         break;
                     case KeyEvent.VK_DOWN:
-                        cameraZcoord--;
                         break;
                     case KeyEvent.VK_RIGHT:
-                        cameraYcoord++;
                         break;
                     case KeyEvent.VK_LEFT:
-                        cameraYcoord--;
                         break;
                 }
             }
+
+            private void switchWatcher() {
+                if (state) {
+                    getGlWindow().removeMouseListener(cameraWatcher);
+                    getGlWindow().addMouseListener(lightWatcher);
+                } else {
+                    getGlWindow().removeMouseListener(lightWatcher);
+                    getGlWindow().addMouseListener(cameraWatcher);
+                }
+                state = !state;
+            }
         });
+    }
+
+    private class CoordsWatcher extends MouseAdapter {
+        int x;
+        int y;
+        CoordsPair pairToWatch;
+        CoordsPair startCoordsPair;
+
+        float speedCompensator;
+
+        CoordsWatcher(CoordsPair pairToWatch, float speedCompensator) {
+            this.pairToWatch = pairToWatch;
+            this.speedCompensator = speedCompensator;
+        }
+
+        CoordsWatcher(CoordsPair pairToWatch) {
+            this(pairToWatch, 0.001f);
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            updateCoords(e);
+        }
+
+        private void updateCoords(MouseEvent e) {
+            x = e.getX();
+            y = e.getY();
+            startCoordsPair = new CoordsPair(pairToWatch);
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            pairToWatch.first = startCoordsPair.first - (e.getX() - x) * speedCompensator;
+            pairToWatch.second = startCoordsPair.second + (e.getY() - y) * speedCompensator;
+        }
     }
 }
