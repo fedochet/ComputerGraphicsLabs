@@ -8,6 +8,8 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import org.anstreth.common.AbstractOpenGLApp;
 
+import java.util.function.Consumer;
+
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.*;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
@@ -79,56 +81,122 @@ class Lab3GLApp extends AbstractOpenGLApp {
         gl2.glClearColor(1, 1, 1, 0);
 
         setUpLight(gl2);
-        roomDrawer.draw();
-        drawShadows(gl2);
-        drawCylinder(gl2);
+        roomDrawer.draw(gl -> {
+            drawCylinder(gl2);
+            drawSphere(gl2);
+        });
     }
 
-    private void drawShadows(GL2 gl2) {
-        gl2.glEnable(GL_BLEND);
-        gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        gl2.glDisable(GL_LIGHTING);
-        gl2.glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
-        float[][] matrix = new float[4][4];
-        float[] floorPlane = {0, 0, 1, 9.99f};
-        float[] backWall = {1, 0, 0, 9.99f};
-        float[] leftWall = {0, 1, 0, 9.99f};
-        float[] rightWall = {0, -1, 0, 9.99f};
-        float[] lightPos = getLightPosition();
-
-        shadowmatrix(matrix, floorPlane, lightPos);
-        float[] stripMatrix = stripMatrix(matrix);
+    private void drawSphere(GL2 gl2) {
         gl2.glPushMatrix();
-        gl2.glMultMatrixf(stripMatrix, 0);
-        drawCylinder(gl2);
+        gl2.glTranslatef(0, 0, 0);
+        glut.glutSolidSphere(1, 10, 10);
         gl2.glPopMatrix();
-
-        shadowmatrix(matrix, leftWall, lightPos);
-        stripMatrix = stripMatrix(matrix);
-        gl2.glPushMatrix();
-        gl2.glMultMatrixf(stripMatrix, 0);
-        drawCylinder(gl2);
-        gl2.glPopMatrix();
-
-        shadowmatrix(matrix, rightWall, lightPos);
-        stripMatrix = stripMatrix(matrix);
-        gl2.glPushMatrix();
-        gl2.glMultMatrixf(stripMatrix, 0);
-        drawCylinder(gl2);
-        gl2.glPopMatrix();
-
-        shadowmatrix(matrix, backWall, lightPos);
-        stripMatrix = stripMatrix(matrix);
-        gl2.glPushMatrix();
-        gl2.glMultMatrixf(stripMatrix, 0);
-        drawCylinder(gl2);
-        gl2.glPopMatrix();
-
-        gl2.glEnable(GL_LIGHTING);
-        gl2.glDisable(GL_BLEND);
     }
 
-    private void shadowmatrix(float matrix[][], float plane[], float lightpos[]) {
+    private void drawCylinder(GL2 gl2) {
+        gl2.glPushMatrix();
+        gl2.glTranslatef(0, 0, -10);
+        glut.glutSolidCylinder(3, 7, 20, 20);
+        gl2.glPopMatrix();
+    }
+
+    private class RoomDrawer {
+
+        GL2 gl2;
+        private int roomSize;
+        private float[] roomCoords;
+        RoomDrawer(GL2 gl2, int roomSize) {
+            this(gl2, roomSize, new float[]{0f, 0f, 0f});
+        }
+
+        RoomDrawer(GL2 gl2, int roomSize, float[] roomCoords) {
+            this.gl2 = gl2;
+            this.roomSize = roomSize;
+            this.roomCoords = roomCoords;
+        }
+
+        void draw(Consumer<GL2> sceneDrawer) {
+            gl2.glPushMatrix();
+            gl2.glTranslatef(roomCoords[0], roomCoords[1], roomCoords[2]);
+            drawCubeWithCenterIn(-roomSize, 0, 0);
+            drawCubeWithCenterIn(0, roomSize, 0);
+            drawCubeWithCenterIn(0, -roomSize, 0);
+            drawCubeWithCenterIn(0, 0, roomSize);
+            drawCubeWithCenterIn(0, 0, -roomSize);
+            gl2.glPopMatrix();
+
+            drawShadows(sceneDrawer);
+            sceneDrawer.accept(gl2);
+        }
+
+        private void drawShadows(Consumer<GL2> sceneDrawer) {
+            gl2.glEnable(GL_BLEND);
+            gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            gl2.glDisable(GL_LIGHTING);
+            gl2.glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
+            float[][] matrix = new float[4][4];
+            float[] floorPlane = {0, 0, 1, 9.99f};
+            float[] backWall = {1, 0, 0, 9.99f};
+            float[] leftWall = {0, 1, 0, 9.99f};
+            float[] rightWall = {0, -1, 0, 9.99f};
+            float[] lightPos = getLightPosition();
+
+            shadowmatrix(matrix, floorPlane, lightPos);
+            float[] stripMatrix = stripMatrix(matrix);
+            gl2.glPushMatrix();
+            gl2.glMultMatrixf(stripMatrix, 0);
+            sceneDrawer.accept(gl2);
+            gl2.glPopMatrix();
+
+            shadowmatrix(matrix, leftWall, lightPos);
+            stripMatrix = stripMatrix(matrix);
+            gl2.glPushMatrix();
+            gl2.glMultMatrixf(stripMatrix, 0);
+            sceneDrawer.accept(gl2);
+            gl2.glPopMatrix();
+
+            shadowmatrix(matrix, rightWall, lightPos);
+            stripMatrix = stripMatrix(matrix);
+            gl2.glPushMatrix();
+            gl2.glMultMatrixf(stripMatrix, 0);
+            sceneDrawer.accept(gl2);
+            gl2.glPopMatrix();
+
+            shadowmatrix(matrix, backWall, lightPos);
+            stripMatrix = stripMatrix(matrix);
+            gl2.glPushMatrix();
+            gl2.glMultMatrixf(stripMatrix, 0);
+            sceneDrawer.accept(gl2);
+            gl2.glPopMatrix();
+
+            gl2.glEnable(GL_LIGHTING);
+            gl2.glDisable(GL_BLEND);
+        }
+
+        private void drawCubeWithCenterIn(int x, int y, int z) {
+            gl2.glPushMatrix();
+            gl2.glTranslatef(x, y, z);
+            glut.glutSolidCube(roomSize);
+            gl2.glPopMatrix();
+        }
+
+    }
+
+    private float[] stripMatrix(float[][] matrix) {
+        int size = matrix[0].length * matrix.length;
+        float[] result = new float[size];
+
+        for (int row = 0; row < matrix.length; row++) {
+            for (int column = 0; column < matrix[row].length; column++) {
+                result[column * 4 + row] = matrix[column][row];
+            }
+        }
+
+        return result;
+    }
+
+    private void shadowmatrix(float[][] matrix, float[] plane, float[] lightpos) {
         float dot;
 
         dot = plane[0] * lightpos[0] +
@@ -155,61 +223,6 @@ class Lab3GLApp extends AbstractOpenGLApp {
         matrix[1][3] = 0.f - lightpos[3] * plane[1];
         matrix[2][3] = 0.f - lightpos[3] * plane[2];
         matrix[3][3] = dot - lightpos[3] * plane[3];
-    }
-
-    private float[] stripMatrix(float[][] matrix) {
-        int size = matrix[0].length * matrix.length;
-        float[] result = new float[size];
-
-        for (int row = 0; row < matrix.length; row++) {
-            for (int column = 0; column < matrix[row].length; column++) {
-                result[column*4 + row] = matrix[column][row];
-            }
-        }
-
-        return result;
-    }
-
-    private void drawCylinder(GL2 gl2) {
-        gl2.glPushMatrix();
-        gl2.glTranslatef(0, 0, -10);
-        glut.glutSolidCylinder(3, 7, 20, 20);
-        gl2.glPopMatrix();
-    }
-
-    private class RoomDrawer {
-        GL2 gl2;
-        private int roomSize;
-        private float[] roomCoords;
-
-        RoomDrawer(GL2 gl2, int roomSize) {
-            this(gl2, roomSize, new float[]{0f, 0f, 0f});
-        }
-
-        RoomDrawer(GL2 gl2, int roomSize, float[] roomCoords) {
-            this.gl2 = gl2;
-            this.roomSize = roomSize;
-            this.roomCoords = roomCoords;
-        }
-
-        void draw() {
-            gl2.glPushMatrix();
-            gl2.glTranslatef(roomCoords[0], roomCoords[1], roomCoords[2]);
-            drawCubeWithCenterIn(-roomSize, 0, 0);
-            drawCubeWithCenterIn(0, roomSize, 0);
-            drawCubeWithCenterIn(0, -roomSize, 0);
-            drawCubeWithCenterIn(0, 0, roomSize);
-            drawCubeWithCenterIn(0, 0, -roomSize);
-            gl2.glPopMatrix();
-
-        }
-
-        private void drawCubeWithCenterIn(int x, int y, int z) {
-            gl2.glPushMatrix();
-            gl2.glTranslatef(x, y, z);
-            glut.glutSolidCube(roomSize);
-            gl2.glPopMatrix();
-        }
     }
 
     private void setUpCameraPosition(GL2 gl2) {
