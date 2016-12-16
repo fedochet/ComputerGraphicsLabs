@@ -135,38 +135,29 @@ class Lab3GLApp extends AbstractOpenGLApp {
             gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             gl2.glDisable(GL_LIGHTING);
             gl2.glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
-            float[][] matrix = new float[4][4];
             float[] floorPlane = {0, 0, 1, 9.99f};
             float[] backWall = {1, 0, 0, 9.99f};
             float[] leftWall = {0, 1, 0, 9.99f};
             float[] rightWall = {0, -1, 0, 9.99f};
             float[] lightPos = getLightPosition();
 
-            shadowmatrix(matrix, floorPlane, lightPos);
-            float[] stripMatrix = stripMatrix(matrix);
             gl2.glPushMatrix();
-            gl2.glMultMatrixf(stripMatrix, 0);
+            gl2.glMultMatrixf(stripMatrix(shadowMatrix(floorPlane, lightPos)), 0);
             sceneDrawer.accept(gl2);
             gl2.glPopMatrix();
 
-            shadowmatrix(matrix, leftWall, lightPos);
-            stripMatrix = stripMatrix(matrix);
             gl2.glPushMatrix();
-            gl2.glMultMatrixf(stripMatrix, 0);
+            gl2.glMultMatrixf(stripMatrix(shadowMatrix(leftWall, lightPos)), 0);
             sceneDrawer.accept(gl2);
             gl2.glPopMatrix();
 
-            shadowmatrix(matrix, rightWall, lightPos);
-            stripMatrix = stripMatrix(matrix);
             gl2.glPushMatrix();
-            gl2.glMultMatrixf(stripMatrix, 0);
+            gl2.glMultMatrixf(stripMatrix(shadowMatrix(rightWall, lightPos)), 0);
             sceneDrawer.accept(gl2);
             gl2.glPopMatrix();
 
-            shadowmatrix(matrix, backWall, lightPos);
-            stripMatrix = stripMatrix(matrix);
             gl2.glPushMatrix();
-            gl2.glMultMatrixf(stripMatrix, 0);
+            gl2.glMultMatrixf(stripMatrix(shadowMatrix(backWall, lightPos)), 0);
             sceneDrawer.accept(gl2);
             gl2.glPopMatrix();
 
@@ -196,9 +187,10 @@ class Lab3GLApp extends AbstractOpenGLApp {
         return result;
     }
 
-    private void shadowmatrix(float[][] matrix, float[] plane, float[] lightpos) {
+    private float[][] shadowMatrix(float[] plane, float[] lightpos) {
         float dot;
 
+        float[][] matrix = new float[4][4];
         dot = plane[0] * lightpos[0] +
                 plane[1] * lightpos[1] +
                 plane[2] * lightpos[2] +
@@ -223,6 +215,8 @@ class Lab3GLApp extends AbstractOpenGLApp {
         matrix[1][3] = 0.f - lightpos[3] * plane[1];
         matrix[2][3] = 0.f - lightpos[3] * plane[2];
         matrix[3][3] = dot - lightpos[3] * plane[3];
+
+        return matrix;
     }
 
     private void setUpCameraPosition(GL2 gl2) {
