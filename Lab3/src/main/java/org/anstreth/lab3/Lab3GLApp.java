@@ -84,7 +84,16 @@ class Lab3GLApp extends AbstractOpenGLApp {
         roomDrawer.draw(gl -> {
             drawCylinder(gl2);
             drawSphere(gl2);
+            drawThorus(gl2);
         });
+    }
+
+    private void drawThorus(GL2 gl2) {
+        gl2.glPushMatrix();
+        gl2.glTranslatef(0, 0, 2);
+        gl2.glRotatef(45, 0, -1, 0);
+        glut.glutSolidTorus(1, 5, 20, 20);
+        gl2.glPopMatrix();
     }
 
     private void drawSphere(GL2 gl2) {
@@ -137,6 +146,7 @@ class Lab3GLApp extends AbstractOpenGLApp {
             gl2.glDisable(GL_LIGHTING);
             gl2.glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
             float[] floor = {0, 0, 1, 9.99f};
+            float[] ceiling = {0, 0, -1, 9.99f};
             float[] backWall = {1, 0, 0, 9.99f};
             float[] leftWall = {0, 1, 0, 9.99f};
             float[] rightWall = {0, -1, 0, 9.99f};
@@ -146,6 +156,7 @@ class Lab3GLApp extends AbstractOpenGLApp {
             drawShadowOnPlaneWithLigh(sceneDrawer, leftWall, lightPos);
             drawShadowOnPlaneWithLigh(sceneDrawer, rightWall, lightPos);
             drawShadowOnPlaneWithLigh(sceneDrawer, backWall, lightPos);
+            drawShadowOnPlaneWithLigh(sceneDrawer, ceiling, lightPos);
 
             gl2.glEnable(GL_LIGHTING);
             gl2.glDisable(GL_BLEND);
@@ -223,7 +234,7 @@ class Lab3GLApp extends AbstractOpenGLApp {
         super.start();
         getGlWindow().addMouseListener(new CoordsWatcher(light0CoordsPair, 0.1f));
         getGlWindow().addKeyListener(new KeyListener() {
-            boolean state = true;
+            boolean state = false;
             CoordsWatcher cameraWatcher = new CoordsWatcher(cameraCoordsPair, 0.01f);
             CoordsWatcher lightWatcher = new CoordsWatcher(light0CoordsPair, 0.1f);
 
