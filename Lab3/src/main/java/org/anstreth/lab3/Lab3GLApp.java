@@ -106,6 +106,7 @@ class Lab3GLApp extends AbstractOpenGLApp {
         GL2 gl2;
         private int roomSize;
         private float[] roomCoords;
+
         RoomDrawer(GL2 gl2, int roomSize) {
             this(gl2, roomSize, new float[]{0f, 0f, 0f});
         }
@@ -135,34 +136,26 @@ class Lab3GLApp extends AbstractOpenGLApp {
             gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             gl2.glDisable(GL_LIGHTING);
             gl2.glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
-            float[] floorPlane = {0, 0, 1, 9.99f};
+            float[] floor = {0, 0, 1, 9.99f};
             float[] backWall = {1, 0, 0, 9.99f};
             float[] leftWall = {0, 1, 0, 9.99f};
             float[] rightWall = {0, -1, 0, 9.99f};
             float[] lightPos = getLightPosition();
 
-            gl2.glPushMatrix();
-            gl2.glMultMatrixf(stripMatrix(shadowMatrix(floorPlane, lightPos)), 0);
-            sceneDrawer.accept(gl2);
-            gl2.glPopMatrix();
+            drawShadowOnPlaneWithLigh(sceneDrawer, floor, lightPos);
+            drawShadowOnPlaneWithLigh(sceneDrawer, leftWall, lightPos);
+            drawShadowOnPlaneWithLigh(sceneDrawer, rightWall, lightPos);
+            drawShadowOnPlaneWithLigh(sceneDrawer, backWall, lightPos);
 
-            gl2.glPushMatrix();
-            gl2.glMultMatrixf(stripMatrix(shadowMatrix(leftWall, lightPos)), 0);
-            sceneDrawer.accept(gl2);
-            gl2.glPopMatrix();
+            gl2.glEnable(GL_LIGHTING);
+            gl2.glDisable(GL_BLEND);
+        }
 
-            gl2.glPushMatrix();
-            gl2.glMultMatrixf(stripMatrix(shadowMatrix(rightWall, lightPos)), 0);
-            sceneDrawer.accept(gl2);
-            gl2.glPopMatrix();
-
+        private void drawShadowOnPlaneWithLigh(Consumer<GL2> sceneDrawer, float[] backWall, float[] lightPos) {
             gl2.glPushMatrix();
             gl2.glMultMatrixf(stripMatrix(shadowMatrix(backWall, lightPos)), 0);
             sceneDrawer.accept(gl2);
             gl2.glPopMatrix();
-
-            gl2.glEnable(GL_LIGHTING);
-            gl2.glDisable(GL_BLEND);
         }
 
         private void drawCubeWithCenterIn(int x, int y, int z) {
