@@ -2,6 +2,15 @@ package org.anstreth.lab3;
 
 class CoordsPair {
     float first;
+
+    public void setFirst(float first) {
+        this.first = first;
+    }
+
+    public void setSecond(float second) {
+        this.second = second;
+    }
+
     float second;
 
     CoordsPair(float first, float second) {

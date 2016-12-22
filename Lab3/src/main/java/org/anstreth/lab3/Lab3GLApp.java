@@ -6,21 +6,43 @@ import com.jogamp.newt.event.MouseAdapter;
 import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.glu.GLUquadric;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureIO;
 import org.anstreth.common.AbstractOpenGLApp;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.*;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
+import static com.jogamp.opengl.glu.GLU.GLU_FILL;
+import static com.jogamp.opengl.glu.GLU.GLU_SMOOTH;
 
 // TODO draw cylinder, sphere on top of it and thorus
 class Lab3GLApp extends AbstractOpenGLApp {
     private CoordsPair cameraCoordsPair = new CoordsPair(1, 1);
-    private CoordsPair light0CoordsPair = new CoordsPair(0, 0);
+    private CoordsPair light0CoordsPair = new CoordsPair(0, 0) {
+        @Override
+        public void setFirst(float first) {
+            if (Math.abs(first) > 10) return;
+            super.setFirst(first);
+        }
+
+        @Override
+        public void setSecond(float second) {
+            if (Math.abs(second) > 10) return;
+            super.setSecond(second);
+        }
+    };
 
     private RoomDrawer roomDrawer;
+    private Texture woodTexture;
 
     Lab3GLApp() {
         super("Lab 3");
@@ -30,7 +52,8 @@ class Lab3GLApp extends AbstractOpenGLApp {
     public void init(GLAutoDrawable drawable) {
         int roomSize = 20;
         GL2 gl2 = drawable.getGL().getGL2();
-        roomDrawer = new RoomDrawer(gl2, roomSize);
+        woodTexture = getEarthTexture();
+        roomDrawer = new RoomDrawer(gl2, roomSize, new float[]{-20, 0, 0});
         gl2.glEnable(GL_BLEND);
         gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         gl2.glEnable(GL_DEPTH_TEST);
@@ -54,7 +77,7 @@ class Lab3GLApp extends AbstractOpenGLApp {
     }
 
     private float[] getLightPosition() {
-        return new float[]{11, -light0CoordsPair.first, -light0CoordsPair.second, 1};
+        return new float[]{5, -light0CoordsPair.first, -light0CoordsPair.second, 1};
     }
 
     @Override
@@ -68,7 +91,8 @@ class Lab3GLApp extends AbstractOpenGLApp {
         gl2.glMatrixMode(GL_PROJECTION);
         gl2.glLoadIdentity();
         int size = 20;
-        gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
+        glu.gluPerspective(60, hh, 0.01, 100);
+//        gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
         setUpCameraPosition(gl2);
 
     }
@@ -104,10 +128,24 @@ class Lab3GLApp extends AbstractOpenGLApp {
     }
 
     private void drawCylinder(GL2 gl2) {
+        gl2.glEnable(GL_TEXTURE_2D);
+        woodTexture.enable(gl2);
+        woodTexture.bind(gl2);
+
         gl2.glPushMatrix();
-        gl2.glTranslatef(0, 0, -10);
-        glut.glutSolidCylinder(3, 7, 20, 20);
+        gl2.glTranslatef(0, 0, -3);
+        GLUquadric quadric = glu.gluNewQuadric();
+        glu.gluQuadricTexture(quadric, true);
+        glu.gluQuadricDrawStyle(quadric, GLU_FILL);
+        glu.gluQuadricNormals(quadric, GLU_SMOOTH);
+        glu.gluDisk(quadric, 0, 3, 20, 20);
+        gl2.glTranslatef(0, 0, -7);
+        glu.gluCylinder(quadric, 3, 3, 7, 20, 20);
+        glu.gluDeleteQuadric(quadric);
+//        glut.glutSolidCylinder(3, 7, 20, 20);
         gl2.glPopMatrix();
+
+        woodTexture.disable(gl2);
     }
 
     private class RoomDrawer {
@@ -134,10 +172,10 @@ class Lab3GLApp extends AbstractOpenGLApp {
             drawCubeWithCenterIn(0, -roomSize, 0);
             drawCubeWithCenterIn(0, 0, roomSize);
             drawCubeWithCenterIn(0, 0, -roomSize);
-            gl2.glPopMatrix();
 
             drawShadows(sceneDrawer);
             sceneDrawer.accept(gl2);
+            gl2.glPopMatrix();
         }
 
         private void drawShadows(Consumer<GL2> sceneDrawer) {
@@ -152,17 +190,17 @@ class Lab3GLApp extends AbstractOpenGLApp {
             float[] rightWall = {0, -1, 0, 9.99f};
             float[] lightPos = getLightPosition();
 
-            drawShadowOnPlaneWithLigh(sceneDrawer, floor, lightPos);
-            drawShadowOnPlaneWithLigh(sceneDrawer, leftWall, lightPos);
-            drawShadowOnPlaneWithLigh(sceneDrawer, rightWall, lightPos);
-            drawShadowOnPlaneWithLigh(sceneDrawer, backWall, lightPos);
-            drawShadowOnPlaneWithLigh(sceneDrawer, ceiling, lightPos);
+            drawShadowOnPlaneWithLight(sceneDrawer, floor, lightPos);
+            drawShadowOnPlaneWithLight(sceneDrawer, leftWall, lightPos);
+            drawShadowOnPlaneWithLight(sceneDrawer, rightWall, lightPos);
+            drawShadowOnPlaneWithLight(sceneDrawer, backWall, lightPos);
+            drawShadowOnPlaneWithLight(sceneDrawer, ceiling, lightPos);
 
             gl2.glEnable(GL_LIGHTING);
             gl2.glDisable(GL_BLEND);
         }
 
-        private void drawShadowOnPlaneWithLigh(Consumer<GL2> sceneDrawer, float[] backWall, float[] lightPos) {
+        private void drawShadowOnPlaneWithLight(Consumer<GL2> sceneDrawer, float[] backWall, float[] lightPos) {
             gl2.glPushMatrix();
             gl2.glMultMatrixf(stripMatrix(shadowMatrix(backWall, lightPos)), 0);
             sceneDrawer.accept(gl2);
@@ -226,17 +264,18 @@ class Lab3GLApp extends AbstractOpenGLApp {
     private void setUpCameraPosition(GL2 gl2) {
         gl2.glMatrixMode(GL_MODELVIEW);
         gl2.glLoadIdentity();
-        glu.gluLookAt(2, cameraCoordsPair.first, cameraCoordsPair.second, 0, 0, 0, 0, 0, 1);
+        glu.gluLookAt(2, cameraCoordsPair.first, cameraCoordsPair.second, -20, 0, 0, 0, 0, 1);
     }
+
+    private CoordsWatcher cameraWatcher = new CoordsWatcher(cameraCoordsPair, 0.05f);
+    private CoordsWatcher lightWatcher = new CoordsWatcher(light0CoordsPair, 0.1f);
 
     @Override
     public void start() {
         super.start();
-        getGlWindow().addMouseListener(new CoordsWatcher(light0CoordsPair, 0.1f));
+        getGlWindow().addMouseListener(lightWatcher);
         getGlWindow().addKeyListener(new KeyListener() {
             boolean state = false;
-            CoordsWatcher cameraWatcher = new CoordsWatcher(cameraCoordsPair, 0.01f);
-            CoordsWatcher lightWatcher = new CoordsWatcher(light0CoordsPair, 0.1f);
 
             @Override
             public void keyPressed(KeyEvent e) {
@@ -302,8 +341,21 @@ class Lab3GLApp extends AbstractOpenGLApp {
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            pairToWatch.first = startCoordsPair.first - (e.getX() - x) * speedCompensator;
-            pairToWatch.second = startCoordsPair.second + (e.getY() - y) * speedCompensator;
+            pairToWatch.setFirst(startCoordsPair.first - (e.getX() - x) * speedCompensator);
+            pairToWatch.setSecond(startCoordsPair.second + (e.getY() - y) * speedCompensator);
         }
     }
+
+    private Texture getEarthTexture() {
+        try {
+            return TextureIO.newTexture(getTextureFile("/wood.jpg"), true);
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private File getTextureFile(String fileName) throws URISyntaxException {
+        return Objects.requireNonNull(new File(getClass().getResource(fileName).toURI()), "Texture not found");
+    }
+
 }
