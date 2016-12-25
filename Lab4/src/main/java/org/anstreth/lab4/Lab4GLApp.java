@@ -15,6 +15,8 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
  */
 
 class Lab4GLApp extends AbstractOpenGLApp {
+    private AxesDrawer axesDrawer = new AxesDrawer();
+    private LyingConeDrawer lyingConeDrawer = new LyingConeDrawer();
 
     Lab4GLApp() {
         super("Lab 3");
@@ -54,24 +56,15 @@ class Lab4GLApp extends AbstractOpenGLApp {
     }
 
     private void drawCone(GL2 gl2) {
-        gl2.glColor4f(0, 0, 1, 1);
-
-        withCleanState(gl2, () -> {
-            double base = 2;
-            double height = 8;
-            double conePeekAngle = getConePeekAngle(base, height);
-            gl2.glRotatef((float) (conePeekAngle / 2 + 90), 0, 1, 0);
-            gl2.glTranslatef(0, 0, (float) -height);
-            glut.glutSolidCone(base, height, 100, 100);
-        });
-
-    }
-
-    private double getConePeekAngle(double base, double height) {
-        return 2 * Math.atan(base / height) / (Math.PI) * 180;
+        lyingConeDrawer.rotateByAngle(0.5f);
+        lyingConeDrawer.draw(gl2);
     }
 
     private void drawAxes(GL2 gl2) {
+        axesDrawer.draw(gl2);
+    }
+
+    private class AxesDrawer {
         float tip = 0;
         float turn = 0;
         float[] ORG = {0, 0, 0};
@@ -79,30 +72,64 @@ class Lab4GLApp extends AbstractOpenGLApp {
         float[] YP = {0, 1, 0};
         float[] ZP = {0, 0, 1};
 
-        withCleanState(gl2, () -> {
-            gl2.glRotatef(tip, 1, 0, 0);
-            gl2.glRotatef(turn, 0, 1, 0);
-            float scaleFactor = 4f;
-            gl2.glScalef(scaleFactor, scaleFactor, scaleFactor);
+        float scaleFactor = 4f;
+        void draw(GL2 gl2) {
+            withCleanState(gl2, () -> {
+                gl2.glRotatef(tip, 1, 0, 0);
+                gl2.glRotatef(turn, 0, 1, 0);
+                gl2.glScalef(scaleFactor, scaleFactor, scaleFactor);
 
-            gl2.glLineWidth(2.0f);
+                gl2.glLineWidth(2.0f);
 
-            gl2.glBegin(GL_LINES);
-            gl2.glColor3f(1, 0, 0); // X axis is red.
-            gl2.glVertex3fv(ORG, 0);
-            gl2.glVertex3fv(XP, 0);
-            gl2.glColor3f(0, 1, 0); // Y axis is green.
-            gl2.glVertex3fv(ORG, 0);
-            gl2.glVertex3fv(YP, 0);
-            gl2.glColor3f(0, 0, 1); // z axis is blue.
-            gl2.glVertex3fv(ORG, 0);
-            gl2.glVertex3fv(ZP, 0);
-            gl2.glEnd();
-        });
+                gl2.glBegin(GL_LINES);
+                gl2.glColor3f(1, 0, 0); // X axis is red.
+                gl2.glVertex3fv(ORG, 0);
+                gl2.glVertex3fv(XP, 0);
+                gl2.glColor3f(0, 1, 0); // Y axis is green.
+                gl2.glVertex3fv(ORG, 0);
+                gl2.glVertex3fv(YP, 0);
+                gl2.glColor3f(0, 0, 1); // z axis is blue.
+                gl2.glVertex3fv(ORG, 0);
+                gl2.glVertex3fv(ZP, 0);
+                gl2.glEnd();
+            });
+        }
+
     }
 
-    private double getHypotenuse(double catet1, double catet2) {
-        return Math.sqrt(Math.pow(catet1, 2) + Math.pow(catet2, 2));
+    private class LyingConeDrawer {
+        double baseRadius = 6;
+        double height = 8;
+        float coneTurnAngle = 0f;
+        float basePerimeter = (float)(2 * Math.PI * baseRadius);
+
+        void draw(GL2 gl2) {
+            gl2.glColor4f(0, 0, 1, 1);
+
+            withCleanState(gl2, () -> {
+                double conePeekAngle = getConePeekAngle(baseRadius, height);
+                gl2.glRotatef((float) (conePeekAngle / 2 + 90), 0, 1, 0);
+                gl2.glTranslatef(0, 0, (float) -height);
+                drawCone(gl2);
+            });
+
+        }
+
+        private void drawCone(GL2 gl2) {
+            withCleanState(gl2, () -> {
+                gl2.glRotatef(coneTurnAngle, 0, 0, 1);
+                glut.glutWireCone(baseRadius, height, 10, 10);
+            });
+        }
+
+        void rotateByAngle(float angle) {
+            coneTurnAngle += angle;
+        }
+
+        private double getConePeekAngle(double base, double height) {
+            return 2 * Math.atan(base / height) / (Math.PI) * 180;
+        }
+
     }
 
     private void withCleanState(GL2 gl2, Runnable drawer) {
