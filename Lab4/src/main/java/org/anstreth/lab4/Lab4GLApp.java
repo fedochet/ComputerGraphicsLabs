@@ -7,6 +7,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import org.anstreth.common.AbstractOpenGLApp;
 
 import static com.jogamp.opengl.GL.*;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 
 /*
@@ -20,24 +21,18 @@ class Lab4GLApp extends AbstractOpenGLApp {
     private AxesDrawer axesDrawer = new AxesDrawer();
     private LyingConeDrawer lyingConeDrawer = new LyingConeDrawer();
     private CoordsPair cameraCoordsPair = new CoordsPair(1, 1);
-    private CoordsWatcher coordsWatcher = new CoordsWatcher(cameraCoordsPair);
-
-    Lab4GLApp() {
-        super("Lab 3");
-    }
+    private CoordsWatcher coordsWatcher = new CoordsWatcher(cameraCoordsPair, 0.1f);
 
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl2 = drawable.getGL().getGL2();
         gl2.glEnable(GL_BLEND);
         gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//        gl2.glEnable(GL_DEPTH_TEST);
     }
 
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int w, int h) {
         GL2 gl2 = drawable.getGL().getGL2();
-
         gl2.glViewport(0, 0, w, h);
 
         final float hh = (float) w / (float) h;
@@ -46,11 +41,7 @@ class Lab4GLApp extends AbstractOpenGLApp {
         gl2.glLoadIdentity();
         int size = 20;
         gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
-        setCameraPosition();
-    }
-
-    private void setCameraPosition() {
-        glu.gluLookAt(cameraCoordsPair.first, 2, cameraCoordsPair.second, 0, 0, 0, 0, 0, 1);
+        setCameraPosition(gl2);
     }
 
     @Override
@@ -58,9 +49,16 @@ class Lab4GLApp extends AbstractOpenGLApp {
         GL2 gl2 = drawable.getGL().getGL2();
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         gl2.glClearColor(1, 1, 1, 0);
+        setCameraPosition(gl2);
 
         drawCone(gl2);
         drawAxes(gl2);
+    }
+
+    private void setCameraPosition(GL2 gl2) {
+        gl2.glMatrixMode(GL_MODELVIEW);
+        gl2.glLoadIdentity();
+        glu.gluLookAt(cameraCoordsPair.first, 2, cameraCoordsPair.second, 0, 0, 0, 0, 0, 1);
     }
 
     private void drawCone(GL2 gl2) {
@@ -73,14 +71,15 @@ class Lab4GLApp extends AbstractOpenGLApp {
     }
 
     private class AxesDrawer {
+
         float tip = 0;
         float turn = 0;
         float[] ORG = {0, 0, 0};
         float[] XP = {1, 0, 0};
         float[] YP = {0, 1, 0};
         float[] ZP = {0, 0, 1};
-
         float scaleFactor = 4f;
+
         void draw(GL2 gl2) {
             withCleanState(gl2, () -> {
                 gl2.glRotatef(tip, 1, 0, 0);
@@ -102,18 +101,17 @@ class Lab4GLApp extends AbstractOpenGLApp {
                 gl2.glEnd();
             });
         }
-
     }
 
     private class LyingConeDrawer {
-        final double baseRadius = 4;
-        final double height = 8;
+
+        final double baseRadius = 5;
+        final double height = 10;
         final double coneSideLength = Math.sqrt(Math.pow(baseRadius, 2) + Math.pow(height, 2));
         final double basePerimeter = 2 * Math.PI * baseRadius;
         final double coneTraectoryRadius = 2 * Math.PI * coneSideLength;
         float coneTurnAngle = 0f;
         float coneTraectoryAngle = 0f;
-
         void draw(GL2 gl2) {
             gl2.glColor4f(0, 0, 1, 1);
 
@@ -130,16 +128,14 @@ class Lab4GLApp extends AbstractOpenGLApp {
         private void drawCone(GL2 gl2) {
             withCleanState(gl2, () -> {
                 gl2.glRotatef(coneTurnAngle, 0, 0, 1);
-                glut.glutWireCone(baseRadius, height, 10, 10);
+                glut.glutWireCone(baseRadius, height, 20, 20);
             });
         }
 
         void rotateByAngle(double angle) {
             coneTurnAngle += angle;
             double distance = angle / 360 * basePerimeter;
-            double coneTraectoryAngleDiff = (distance / coneTraectoryRadius) * 360;
-            System.out.println(coneTraectoryAngleDiff);
-            coneTraectoryAngle += coneTraectoryAngleDiff;
+            coneTraectoryAngle += (distance / coneTraectoryRadius) * 360;
         }
 
         private double getConePeekAngle(double base, double height) {
@@ -152,6 +148,10 @@ class Lab4GLApp extends AbstractOpenGLApp {
         gl2.glPushMatrix();
         drawer.run();
         gl2.glPopMatrix();
+    }
+
+    Lab4GLApp() {
+        super("Lab 3");
     }
 
     @Override
