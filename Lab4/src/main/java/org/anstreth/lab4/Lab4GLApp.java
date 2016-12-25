@@ -25,7 +25,7 @@ class Lab4GLApp extends AbstractOpenGLApp {
         GL2 gl2 = drawable.getGL().getGL2();
         gl2.glEnable(GL_BLEND);
         gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        gl2.glEnable(GL_DEPTH_TEST);
+//        gl2.glEnable(GL_DEPTH_TEST);
     }
 
     @Override
@@ -40,7 +40,7 @@ class Lab4GLApp extends AbstractOpenGLApp {
         gl2.glLoadIdentity();
         int size = 20;
         gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
-        glu.gluLookAt(2, 2, 2, 0, 0, 0, 0, 0, 1);
+        glu.gluLookAt(0, 2, 0, 0, 0, 0, 0, 0, 1);
     }
 
     @Override
@@ -49,20 +49,26 @@ class Lab4GLApp extends AbstractOpenGLApp {
         gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         gl2.glClearColor(1, 1, 1, 0);
 
-        drawAxes(gl2);
         drawCone(gl2);
+        drawAxes(gl2);
     }
 
     private void drawCone(GL2 gl2) {
         gl2.glColor4f(0, 0, 1, 1);
 
         withCleanState(gl2, () -> {
-            double base = 5;
-            double height = 10;
-            double coneSideLength = getHypotenuse(base / 2, height);
-            gl2.glTranslatef(0, 0, (float)-height);
+            double base = 2;
+            double height = 8;
+            double conePeekAngle = getConePeekAngle(base, height);
+            gl2.glRotatef((float) (conePeekAngle / 2 + 90), 0, 1, 0);
+            gl2.glTranslatef(0, 0, (float) -height);
             glut.glutSolidCone(base, height, 100, 100);
         });
+
+    }
+
+    private double getConePeekAngle(double base, double height) {
+        return 2 * Math.atan(base / height) / (Math.PI) * 180;
     }
 
     private void drawAxes(GL2 gl2) {
