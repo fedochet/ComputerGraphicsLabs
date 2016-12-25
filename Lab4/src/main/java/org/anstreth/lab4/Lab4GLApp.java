@@ -1,5 +1,7 @@
 package org.anstreth.lab4;
 
+import com.jogamp.newt.event.MouseAdapter;
+import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import org.anstreth.common.AbstractOpenGLApp;
@@ -17,6 +19,8 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 class Lab4GLApp extends AbstractOpenGLApp {
     private AxesDrawer axesDrawer = new AxesDrawer();
     private LyingConeDrawer lyingConeDrawer = new LyingConeDrawer();
+    private CoordsPair cameraCoordsPair = new CoordsPair(1, 1);
+    private CoordsWatcher coordsWatcher = new CoordsWatcher(cameraCoordsPair);
 
     Lab4GLApp() {
         super("Lab 3");
@@ -42,7 +46,11 @@ class Lab4GLApp extends AbstractOpenGLApp {
         gl2.glLoadIdentity();
         int size = 20;
         gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
-        glu.gluLookAt(0, 2, 0, 0, 0, 0, 0, 0, 1);
+        setCameraPosition();
+    }
+
+    private void setCameraPosition() {
+        glu.gluLookAt(cameraCoordsPair.first, 2, cameraCoordsPair.second, 0, 0, 0, 0, 0, 1);
     }
 
     @Override
@@ -56,7 +64,7 @@ class Lab4GLApp extends AbstractOpenGLApp {
     }
 
     private void drawCone(GL2 gl2) {
-        lyingConeDrawer.rotateByAngle(0.5f);
+        lyingConeDrawer.rotateByAngle(1);
         lyingConeDrawer.draw(gl2);
     }
 
@@ -98,18 +106,22 @@ class Lab4GLApp extends AbstractOpenGLApp {
     }
 
     private class LyingConeDrawer {
-        double baseRadius = 6;
-        double height = 8;
+        final double baseRadius = 4;
+        final double height = 8;
+        final double coneSideLength = Math.sqrt(Math.pow(baseRadius, 2) + Math.pow(height, 2));
+        final double basePerimeter = 2 * Math.PI * baseRadius;
+        final double coneTraectoryRadius = 2 * Math.PI * coneSideLength;
         float coneTurnAngle = 0f;
-        float basePerimeter = (float)(2 * Math.PI * baseRadius);
+        float coneTraectoryAngle = 0f;
 
         void draw(GL2 gl2) {
             gl2.glColor4f(0, 0, 1, 1);
 
             withCleanState(gl2, () -> {
                 double conePeekAngle = getConePeekAngle(baseRadius, height);
-                gl2.glRotatef((float) (conePeekAngle / 2 + 90), 0, 1, 0);
-                gl2.glTranslatef(0, 0, (float) -height);
+                gl2.glRotated(coneTurnAngle, 0, 0, 1);
+                gl2.glRotated(conePeekAngle / 2 + 90, 0, 1, 0);
+                gl2.glTranslated(0, 0, -height);
                 drawCone(gl2);
             });
 
@@ -122,8 +134,12 @@ class Lab4GLApp extends AbstractOpenGLApp {
             });
         }
 
-        void rotateByAngle(float angle) {
+        void rotateByAngle(double angle) {
             coneTurnAngle += angle;
+            double distance = angle / 360 * basePerimeter;
+            double coneTraectoryAngleDiff = (distance / coneTraectoryRadius) * 360;
+            System.out.println(coneTraectoryAngleDiff);
+            coneTraectoryAngle += coneTraectoryAngleDiff;
         }
 
         private double getConePeekAngle(double base, double height) {
@@ -141,5 +157,42 @@ class Lab4GLApp extends AbstractOpenGLApp {
     @Override
     public void start() {
         super.start();
+        getGlWindow().addMouseListener(coordsWatcher);
     }
+
+    private class CoordsWatcher extends MouseAdapter {
+        int x;
+        int y;
+        CoordsPair pairToWatch;
+        CoordsPair startCoordsPair;
+
+        float speedCompensator;
+
+        CoordsWatcher(CoordsPair pairToWatch, float speedCompensator) {
+            this.pairToWatch = pairToWatch;
+            this.speedCompensator = speedCompensator;
+        }
+
+        CoordsWatcher(CoordsPair pairToWatch) {
+            this(pairToWatch, 0.001f);
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            updateCoords(e);
+        }
+
+        private void updateCoords(MouseEvent e) {
+            x = e.getX();
+            y = e.getY();
+            startCoordsPair = new CoordsPair(pairToWatch);
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            pairToWatch.setFirst(startCoordsPair.first - (e.getX() - x) * speedCompensator);
+            pairToWatch.setSecond(startCoordsPair.second + (e.getY() - y) * speedCompensator);
+        }
+    }
+
 }
