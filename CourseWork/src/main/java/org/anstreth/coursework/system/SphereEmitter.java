@@ -21,7 +21,7 @@ class SphereEmitter extends SystemObject {
         gl2.glPushMatrix();
         gl2.glTranslated(x, y, z);
         gl2.glColor3dv(color, 0);
-        glut.glutSolidSphere(sphereRadius, sphereSlices, sphereStacks);
+        glut.glutWireSphere(sphereRadius, sphereSlices, sphereStacks);
         gl2.glPopMatrix();
     }
 }

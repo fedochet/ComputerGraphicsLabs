@@ -6,10 +6,14 @@ import com.jogamp.opengl.util.gl2.GLUT;
 
 public class SystemController implements GLDrawable {
 
-    SphereEmitter sphereEmitter = new SphereEmitter();
+    private SphereEmitter sphereEmitter = new SphereEmitter();
 
     @Override
     public void draw(GL2 gl2, GLU glu, GLUT glut) {
         sphereEmitter.draw(gl2, glu, glut);
+
+        Particle p = new Particle();
+        p.setPosition(10, 10, 10);
+        p.draw(gl2, glu, glut);
     }
 }
