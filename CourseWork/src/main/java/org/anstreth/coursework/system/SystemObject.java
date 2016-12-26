@@ -3,6 +3,7 @@ package org.anstreth.coursework.system;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
+import org.anstreth.coursework.common.Triple;
 
 /*
 координаты, скорость, размер, цвет
@@ -17,30 +18,20 @@ import com.jogamp.opengl.util.gl2.GLUT;
 
  */
 abstract class SystemObject implements GLDrawable {
-    public double x;
-    public double y;
-    public double z;
+    Triple position;
 
-    public double xSpeed;
-    public double ySpeed;
-    public double zSpeed;
+    Triple speed;
 
-    void setPosition(double x, double y, double z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    void setPosition(Triple position) {
+        this.position = position;
     }
 
-    void setSpeed(double x, double y, double z) {
-        xSpeed = x;
-        ySpeed = y;
-        zSpeed = z;
+    void setSpeed(Triple speed) {
+        this.speed = speed;
     }
 
     void timeStep() {
-        x += xSpeed;
-        y += ySpeed;
-        z += zSpeed;
+        position = position.add(speed);
     }
 
 }

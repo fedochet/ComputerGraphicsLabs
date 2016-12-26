@@ -3,6 +3,7 @@ package org.anstreth.coursework.system;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
+import org.anstreth.coursework.common.Triple;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +26,8 @@ public class SystemController implements GLDrawable {
     }
 
     private void accelerate(Particle particle) {
-        double[] accelerationAtPoint = sphereEmitter.getAccelerationAtPoint(particle.x, particle.y, particle.z);
-        particle.xSpeed += accelerationAtPoint[0];
-        particle.ySpeed += accelerationAtPoint[1];
-        particle.zSpeed += accelerationAtPoint[2];
+        Triple accelerationAtPoint = sphereEmitter.getAccelerationAtPoint(particle.position);
+        particle.speed = particle.speed.add(accelerationAtPoint);
     }
 
     private boolean canGenerateNewParticle() {

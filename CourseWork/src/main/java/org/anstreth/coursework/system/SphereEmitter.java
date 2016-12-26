@@ -3,8 +3,8 @@ package org.anstreth.coursework.system;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
+import org.anstreth.coursework.common.Triple;
 
-import java.util.Arrays;
 import java.util.Random;
 
 class SphereEmitter extends SystemObject {
@@ -17,8 +17,8 @@ class SphereEmitter extends SystemObject {
     private Random random = new Random();
 
     SphereEmitter() {
-        setPosition(0, 0, 0);
-        setSpeed(0, 0, 0);
+        setPosition(new Triple(0, 0, 0));
+        setSpeed(new Triple(0, 0, 0));
     }
 
     Particle generateParticle() {
@@ -33,24 +33,23 @@ class SphereEmitter extends SystemObject {
     @Override
     public void draw(GL2 gl2, GLU glu, GLUT glut) {
         gl2.glPushMatrix();
-        gl2.glTranslated(x, y, z);
+        gl2.glTranslated(position.x, position.y, position.z);
         gl2.glColor3dv(color, 0);
         glut.glutWireSphere(sphereRadius, sphereSlices, sphereStacks);
         gl2.glPopMatrix();
     }
 
-    public double[] getAccelerationAtPoint(double x, double y, double z) {
-        double[] distanceVector = {x - this.x, y - this.y, z - this.z};
-        double distance = Math.sqrt(Arrays.stream(distanceVector).map(d -> d*d).sum());
+    Triple getAccelerationAtPoint(Triple position) {
+        Triple distanceVector = position.substract(this.position);
+        double distance = distanceVector.getLength();
         if (distance < sphereRadius) {
-            return new double[]{0, 0, 0};
+            return new Triple(0, 0, 0);
         }
 
-        return Arrays.stream(distanceVector)
-                .map(d -> d/distance)
-                .map(d -> d/Math.exp(distance))
-                .map(d -> -d)
-                .toArray();
+        return distanceVector
+                .divide(distance)
+                .divide(Math.exp(distance))
+                .inverse();
     }
 
     private void setRandomPositionOnSphere(Particle particle) {
@@ -59,15 +58,13 @@ class SphereEmitter extends SystemObject {
         double particleX = sphereRadius * Math.cos(phi) * Math.sin(theta);
         double particleY = sphereRadius * Math.sin(phi) * Math.sin(theta);
         double particleZ = sphereRadius * Math.cos(theta);
-        particle.setPosition(particleX, particleY, particleZ);
+        particle.setPosition(new Triple(particleX, particleY, particleZ));
     }
 
     private void setInitialRandomSpeed(Particle particle) {
         double speed = random.nextDouble() * 0.1;
-        double particleXSpeed = speed * (particle.x - x);
-        double particleYSpeed = speed * (particle.y - y);
-        double particleZSpeed = speed * (particle.z - z);
-        particle.setSpeed(particleXSpeed, particleYSpeed, particleZSpeed);
+        Triple speedVector = particle.position.substract(position).multiply(speed);
+        particle.setSpeed(speedVector);
     }
 
     private void setRandomLife(Particle particle) {

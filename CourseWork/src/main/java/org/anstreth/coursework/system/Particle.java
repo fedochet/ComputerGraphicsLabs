@@ -15,7 +15,7 @@ class Particle extends SystemObject {
     public void draw(GL2 gl2, GLU glu, GLUT glut) {
         gl2.glPushMatrix();
         gl2.glColor3dv(color, 0);
-        gl2.glTranslated(x, y, z);
+        gl2.glTranslated(position.x, position.y, position.z);
         glut.glutSolidSphere(particleRadius, slices, stacks);
         gl2.glPopMatrix();
     }
