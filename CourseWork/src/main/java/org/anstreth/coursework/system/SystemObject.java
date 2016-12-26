@@ -16,7 +16,7 @@ import com.jogamp.opengl.util.gl2.GLUT;
 Тем самым система становится цикличной.
 
  */
-abstract class SystemObject {
+abstract class SystemObject implements GLDrawable {
     public double x;
     public double y;
     public double z;
@@ -37,5 +37,4 @@ abstract class SystemObject {
         zSpeed = z;
     }
 
-    public abstract void draw(GL2 gl2, GLU glu, GLUT glut);
 }
