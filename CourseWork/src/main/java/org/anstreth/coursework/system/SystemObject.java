@@ -25,13 +25,13 @@ abstract class SystemObject implements GLDrawable {
     public double ySpeed;
     public double zSpeed;
 
-    public void setPosition(double x, double y, double z) {
+    void setPosition(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
-    public void setSpeed(double x, double y, double z) {
+    void setSpeed(double x, double y, double z) {
         xSpeed = x;
         ySpeed = y;
         zSpeed = z;
