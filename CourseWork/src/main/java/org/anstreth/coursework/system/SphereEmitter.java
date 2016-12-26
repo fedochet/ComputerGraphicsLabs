@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
 
+import java.util.Arrays;
 import java.util.Random;
 
 class SphereEmitter extends SystemObject {
@@ -38,6 +39,20 @@ class SphereEmitter extends SystemObject {
         gl2.glPopMatrix();
     }
 
+    public double[] getAccelerationAtPoint(double x, double y, double z) {
+        double[] distanceVector = {x - this.x, y - this.y, z - this.z};
+        double distance = Math.sqrt(Arrays.stream(distanceVector).map(d -> d*d).sum());
+        if (distance < sphereRadius) {
+            return new double[]{0, 0, 0};
+        }
+
+        return Arrays.stream(distanceVector)
+                .map(d -> d/distance)
+                .map(d -> d/Math.exp(distance))
+                .map(d -> -d)
+                .toArray();
+    }
+
     private void setRandomPositionOnSphere(Particle particle) {
         double phi = getRandomAngle();
         double theta = getRandomAngle();
@@ -48,7 +63,7 @@ class SphereEmitter extends SystemObject {
     }
 
     private void setInitialRandomSpeed(Particle particle) {
-        double speed = random.nextDouble();
+        double speed = random.nextDouble() * 0.1;
         double particleXSpeed = speed * (particle.x - x);
         double particleYSpeed = speed * (particle.y - y);
         double particleZSpeed = speed * (particle.z - z);
@@ -56,7 +71,7 @@ class SphereEmitter extends SystemObject {
     }
 
     private void setRandomLife(Particle particle) {
-        particle.life = 50 + random.nextInt(100);
+        particle.life = 250 + random.nextInt(250);
     }
 
     private double getRandomAngle() {

@@ -19,8 +19,16 @@ public class SystemController implements GLDrawable {
             particleList.add(sphereEmitter.generateParticle());
         }
         sphereEmitter.draw(gl2, glu, glut);
+        particleList.forEach(this::accelerate);
         particleList.forEach(Particle::timeStep);
         particleList.forEach(p -> p.draw(gl2, glu, glut));
+    }
+
+    private void accelerate(Particle particle) {
+        double[] accelerationAtPoint = sphereEmitter.getAccelerationAtPoint(particle.x, particle.y, particle.z);
+        particle.xSpeed += accelerationAtPoint[0];
+        particle.ySpeed += accelerationAtPoint[1];
+        particle.zSpeed += accelerationAtPoint[2];
     }
 
     private boolean canGenerateNewParticle() {
