@@ -24,6 +24,7 @@ class SphereEmitter extends SystemObject {
         Particle particle = new Particle();
         setRandomPositionOnSphere(particle);
         setInitialRandomSpeed(particle);
+        setRandomLife(particle);
 
         return particle;
     }
@@ -52,6 +53,10 @@ class SphereEmitter extends SystemObject {
         double particleYSpeed = speed * (particle.y - y);
         double particleZSpeed = speed * (particle.z - z);
         particle.setSpeed(particleXSpeed, particleYSpeed, particleZSpeed);
+    }
+
+    private void setRandomLife(Particle particle) {
+        particle.life = 50 + random.nextInt(100);
     }
 
     private double getRandomAngle() {

@@ -5,6 +5,7 @@ import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 class Particle extends SystemObject {
+    int life;
     private final double[] color = {0, 1, 0};
     private final int particleRadius = 1;
     private final int slices = 10;
@@ -17,5 +18,18 @@ class Particle extends SystemObject {
         gl2.glTranslated(x, y, z);
         glut.glutSolidSphere(particleRadius, slices, stacks);
         gl2.glPopMatrix();
+    }
+
+    boolean isDead() {
+        return life <= 0;
+    }
+
+    @Override
+    void timeStep() {
+        super.timeStep();
+        if (isDead()) {
+            throw new IllegalStateException("This particle is dead!");
+        }
+        life--;
     }
 }
