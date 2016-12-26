@@ -4,7 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
 
-public class Particle extends SystemObject {
+class Particle extends SystemObject {
     private final double[] color = {0, 1, 0};
     private final int particleRadius = 1;
     private final int slices = 10;
