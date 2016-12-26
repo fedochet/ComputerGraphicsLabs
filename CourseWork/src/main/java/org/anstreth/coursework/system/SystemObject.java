@@ -37,4 +37,10 @@ abstract class SystemObject implements GLDrawable {
         zSpeed = z;
     }
 
+    void timeStep() {
+        x += xSpeed;
+        y += ySpeed;
+        z += zSpeed;
+    }
+
 }

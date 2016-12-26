@@ -18,6 +18,7 @@ public class SystemController implements GLDrawable {
             particleList.add(sphereEmitter.generateParticle());
         }
         sphereEmitter.draw(gl2, glu, glut);
+        particleList.forEach(Particle::timeStep);
         particleList.forEach(p -> p.draw(gl2, glu, glut));
     }
 }

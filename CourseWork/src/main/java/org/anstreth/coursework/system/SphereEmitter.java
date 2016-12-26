@@ -23,8 +23,18 @@ class SphereEmitter extends SystemObject {
     Particle generateParticle() {
         Particle particle = new Particle();
         setRandomPositionOnSphere(particle);
+        setInitialRandomSpeed(particle);
 
         return particle;
+    }
+
+    @Override
+    public void draw(GL2 gl2, GLU glu, GLUT glut) {
+        gl2.glPushMatrix();
+        gl2.glTranslated(x, y, z);
+        gl2.glColor3dv(color, 0);
+        glut.glutWireSphere(sphereRadius, sphereSlices, sphereStacks);
+        gl2.glPopMatrix();
     }
 
     private void setRandomPositionOnSphere(Particle particle) {
@@ -36,13 +46,12 @@ class SphereEmitter extends SystemObject {
         particle.setPosition(particleX, particleY, particleZ);
     }
 
-    @Override
-    public void draw(GL2 gl2, GLU glu, GLUT glut) {
-        gl2.glPushMatrix();
-        gl2.glTranslated(x, y, z);
-        gl2.glColor3dv(color, 0);
-        glut.glutWireSphere(sphereRadius, sphereSlices, sphereStacks);
-        gl2.glPopMatrix();
+    private void setInitialRandomSpeed(Particle particle) {
+        double speed = random.nextDouble();
+        double particleXSpeed = speed * (particle.x - x);
+        double particleYSpeed = speed * (particle.y - y);
+        double particleZSpeed = speed * (particle.z - z);
+        particle.setSpeed(particleXSpeed, particleYSpeed, particleZSpeed);
     }
 
     private double getRandomAngle() {
