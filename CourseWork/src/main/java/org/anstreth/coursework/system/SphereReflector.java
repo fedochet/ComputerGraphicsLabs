@@ -22,4 +22,27 @@ class SphereReflector extends SystemObject {
         glut.glutSolidSphere(radius, 10, 10);
         gl2.glPopMatrix();
     }
+
+    void reflectParticle(Particle particle) {
+        Triple nextPosition = particle.position.add(particle.speed);
+        if (insideReflectorSphere(nextPosition)) {
+            Triple vectorFromCenterToParticle = particle.position.substract(position);
+            Triple sphereNormal = normalize(vectorFromCenterToParticle).inverse();
+            Triple speedNormal = normalize(particle.speed);
+            double cosBetweenNormals = scalarMultiply(sphereNormal, speedNormal);
+            particle.speed = particle.speed.substract(sphereNormal.multiply(cosBetweenNormals * particle.speed.getLength()).multiply(2));
+        }
+    }
+
+    private Triple normalize(Triple vector) {
+        return vector.divide(vector.getLength());
+    }
+
+    private double scalarMultiply(Triple left, Triple right) {
+        return left.x * right.x + left.y * right.y + left.z * right.z;
+    }
+
+    private boolean insideReflectorSphere(Triple nextPosition) {
+        return position.substract(nextPosition).getLength() <= radius;
+    }
 }

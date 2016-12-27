@@ -11,7 +11,7 @@ import java.util.List;
 public class SystemController implements GLDrawable {
     private int particlesLimit = 100;
     private SphereEmitter sphereEmitter = new SphereEmitter();
-    private SphereReflector sphereReflector = new SphereReflector(new Triple(0, 30, 0), 10);
+    private SphereReflector sphereReflector = new SphereReflector(new Triple(0, 0, 80), 40);
     private List<Particle> particleList = new ArrayList<>();
 
     @Override
@@ -23,6 +23,7 @@ public class SystemController implements GLDrawable {
             particleList.add(sphereEmitter.generateParticle());
         }
         particleList.forEach(this::accelerateByEmitter);
+        particleList.forEach(sphereReflector::reflectParticle);
         particleList.forEach(Particle::timeStep);
         particleList.forEach(p -> p.draw(gl2, glu, glut));
     }
