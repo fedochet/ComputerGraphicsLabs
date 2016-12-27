@@ -11,21 +11,23 @@ import java.util.List;
 public class SystemController implements GLDrawable {
     private int particlesLimit = 100;
     private SphereEmitter sphereEmitter = new SphereEmitter();
+    private SphereReflector sphereReflector = new SphereReflector(new Triple(0, 30, 0), 10);
     private List<Particle> particleList = new ArrayList<>();
 
     @Override
     public void draw(GL2 gl2, GLU glu, GLUT glut) {
+        sphereEmitter.draw(gl2, glu, glut);
+        sphereReflector.draw(gl2, glu, glut);
         removeDeadParticles();
         if (canGenerateNewParticle()) {
             particleList.add(sphereEmitter.generateParticle());
         }
-        sphereEmitter.draw(gl2, glu, glut);
-        particleList.forEach(this::accelerate);
+        particleList.forEach(this::accelerateByEmitter);
         particleList.forEach(Particle::timeStep);
         particleList.forEach(p -> p.draw(gl2, glu, glut));
     }
 
-    private void accelerate(Particle particle) {
+    private void accelerateByEmitter(Particle particle) {
         Triple accelerationAtPoint = sphereEmitter.getAccelerationAtPoint(particle.position);
         particle.speed = particle.speed.add(accelerationAtPoint);
     }

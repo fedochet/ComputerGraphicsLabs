@@ -9,6 +9,8 @@ import org.anstreth.coursework.system.SystemController;
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
 import static com.jogamp.opengl.GL.GL_ONE_MINUS_SRC_ALPHA;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 
 /*
 5. Эмиттер – сфера
@@ -34,6 +36,24 @@ class CourseWorkGLApp extends AbstractOpenGLApp {
         gl2.glEnable(GL_BLEND);
         gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         gl2.glEnable(GL_DEPTH_TEST);
+    }
+
+    @Override
+    public void reshape(GLAutoDrawable drawable, int x, int y, int w, int h) {
+        GL2 gl2 = drawable.getGL().getGL2();
+
+        gl2.glViewport(0, 0, w, h);
+
+        final float hh = (float) w / (float) h;
+        double mul = 0.01;
+
+        gl2.glMatrixMode(GL_PROJECTION);
+        gl2.glLoadIdentity();
+        int size = 80;
+        gl2.glOrtho(-size, size, -size / hh, size / hh, -1000, 1000);
+        gl2.glMatrixMode(GL_MODELVIEW);
+        gl2.glLoadIdentity();
+        glu.gluLookAt(5, 0, 0, 0, 0, 0, 0, 0, 1);
     }
 
     @Override
